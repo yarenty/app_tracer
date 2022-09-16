@@ -1,23 +1,21 @@
+mod args;
+mod error;
 mod trace;
 mod utils;
-mod error;
-mod args;
 
 use chrono::prelude::*;
-use std::io::Read;
-use std::process::{Command, exit, Stdio};
+use clap::Parser;
+use log::info;
+use std::process::{exit, Command, Stdio};
 use std::thread;
 use std::time::Duration;
-use log::info;
-use sysinfo::{Pid, PidExt, Process, System, ProcessExt, SystemExt, ProcessRefreshKind};
-use clap::Parser;
+use sysinfo::{Pid, ProcessExt, System, SystemExt};
 
+use crate::args::Args;
+use crate::trace::Record;
+use crate::utils::{check_in_current_dir, create_file, get_current_working_dir};
 use error::{Result, TraceError};
 use utils::setup_logger;
-use crate::trace::Record;
-use crate::utils::{create_file, create_output_file, get_current_working_dir, check_in_current_dir};
-use crate::args::Args;
-
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -40,13 +38,14 @@ fn _main() -> Result<()> {
         info!("Refresh rate: {}", &args.refresh);
 
         let (path, app) = check_in_current_dir(app)?;
-        info!("App:: {}  in dir {}",app,path);
+        info!("App:: {}  in dir {}", app, path);
 
         let cmd = Command::new(&path)
             .current_dir(get_current_working_dir())
-            // .stdin(Stdio::null())
-            // .stdout(Stdio::piped())
-            .spawn().expect("Failed to run ");
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failed to run ");
 
         id = cmd.id() as i32;
         info!("CMD::{:?}", cmd);
@@ -65,21 +64,16 @@ fn _main() -> Result<()> {
     let pid: Pid = Pid::from(id);
     info!("Starting with PID::{}", pid);
     let mut s = System::new_all();
-    let mut process = s.process(pid).unwrap();
-
 
     loop {
-        let mut r = Record::default();
         thread::sleep(Duration::from_millis(refresh_millis));
         s.refresh_process(pid);
         let process = s.process(pid).unwrap();
-
-        let t = format!("{}", process.run_time());
         let t = format!("{}", Utc::now().time());
         let c = format!("{}", process.cpu_usage());
         let m = format!("{}", process.memory());
-        info!("CPU: {}, MEM: {}",  c, m, );
-        let mut r = Record::new(&t, &m, &c);
+        info!("CPU: {}, MEM: {}", c, m,);
+        let r = Record::new(&t, &m, &c);
         wtr.serialize(r).expect("Error serializing outputs to csv");
         match wtr.flush() {
             Ok(_) => Ok(()),

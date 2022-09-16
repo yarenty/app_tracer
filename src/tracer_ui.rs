@@ -1,30 +1,31 @@
 #[macro_use]
 extern crate log;
 
+use clap::Parser;
 use std::io;
+use std::process::{exit, Command, Stdio};
+use std::sync::mpsc;
 use std::thread;
 use std::time;
-use std::sync::mpsc;
-use std::process::{Command, exit, Stdio};
 use sysinfo::Pid;
-use clap::Parser;
 
-use termion::{event,
-              input::{TermRead, MouseTerminal},
-              raw::IntoRawMode, screen::AlternateScreen};
+use termion::{
+    event,
+    input::{MouseTerminal, TermRead},
+    raw::IntoRawMode,
+    screen::AlternateScreen,
+};
 
-use tui::Terminal;
 use tui::backend::TermionBackend;
+use tui::Terminal;
 
-mod trace;
-mod utils;
 mod args;
 mod error;
+mod trace;
+mod utils;
 
+use crate::trace::{app::App, cmd::Cmd, event::Event, ui::renderer::render};
 use utils::{check_in_current_dir, get_current_working_dir, setup_logger};
-use crate::trace::{app::App, cmd::Cmd,
-                   event::Event,
-                   ui::renderer::render};
 
 use crate::args::Args;
 use crate::error::{Result, TraceError};
@@ -47,14 +48,13 @@ fn _main() -> Result<()> {
     debug!("Start");
     // let app = "/opt/workspace/app_banchmark/target/debug/examples/test_app";
 
-
     let id: i32;
     if let Some(app) = &args.application {
         info!("Application to be benchmark is: {}", app);
         info!("Refresh rate: {}", &args.refresh);
 
         let (path, app) = check_in_current_dir(app)?;
-        info!("App:: {}  in dir {}",app,path);
+        info!("App:: {}  in dir {}", app, path);
 
         let cmd = Command::new(&path)
             .current_dir(get_current_working_dir())
@@ -62,7 +62,8 @@ fn _main() -> Result<()> {
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             // .stderr((Stdio::piped())
-            .spawn().expect("Failed to run ");
+            .spawn()
+            .expect("Failed to run ");
 
         id = cmd.id() as i32;
         info!("CMD::{:?}", cmd);
@@ -80,8 +81,7 @@ fn _main() -> Result<()> {
 
     let pid: Pid = Pid::from(id);
     info!("Starting with PID::{}", pid);
-    
-    
+
     //Program
     let mut app = App::new(5000, 50, pid)?;
     let (tx, rx) = mpsc::channel();
@@ -123,8 +123,9 @@ fn _main() -> Result<()> {
                 Event::Input(input) => {
                     if let Some(command) = app.input_handler(input) {
                         match command {
-                            Cmd::Quit => { break; }
-                            //_ => (),
+                            Cmd::Quit => {
+                                break;
+                            } //_ => (),
                         }
                     }
                 }

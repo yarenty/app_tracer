@@ -1,12 +1,11 @@
-use std::io::Write;
-use std::process::{Command, Stdio};
-use std::{env, thread};
+use crate::error::{Result, TraceError};
 use chrono::prelude::*;
 use env_logger::fmt::{Color, Formatter};
 use env_logger::{Builder, WriteStyle};
 use log::{Level, LevelFilter, Record};
-use crate::error::{Result, TraceError};
-
+use std::io::Write;
+use std::process::{Command, Stdio};
+use std::{env, thread};
 
 /// Current output directory
 pub fn get_current_working_dir() -> String {
@@ -72,25 +71,9 @@ pub fn check_in_current_dir(app: &str) -> Result<(String, String)> {
     }
 }
 
-/// Creates output directory for storing csv/graphs outputs.
-pub fn create_output_file(app: &str, filename: &str) -> tagger::Adaptor<std::fs::File> {
-    std::fs::create_dir_all(format!("bench_{}", app)).expect("Cannot create output directory");
-    let file = std::fs::File::create(format!(
-        "bench_{}{}{}",
-        app,
-        std::path::MAIN_SEPARATOR,
-        filename
-    ))
-        .unwrap_or_else(|_| panic!("Cannot create output file: {}", filename));
-    tagger::upgrade_write(file)
-}
-
 /// Creates output file for tracing.
 pub fn create_file(filename: &str) -> tagger::Adaptor<std::fs::File> {
-    let file = std::fs::File::create(format!(
-        "{}",
-        filename
-    ))
+    let file = std::fs::File::create(filename)
         .unwrap_or_else(|_| panic!("Cannot create output file: {}", filename));
     tagger::upgrade_write(file)
 }

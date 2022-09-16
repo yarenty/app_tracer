@@ -34,11 +34,13 @@ serde = "1"
 serde_derive = "1"
 itertools = "0.10"
 sysinfo = "0.26"
+const_format = "0.2"
 nix = { version =  "0.25", features = ["process", "pthread", "ptrace"] }
+
 
 termion = "1.5.5"
 stderrlog = "0.4.3"
-tui = "0.9.1"
+tui = "0.9.5"
 num-traits = "0.2"
 
 

@@ -1,10 +1,10 @@
-mod datastream;
-mod cpumonitor;
-mod memorymonitor;
-mod processmonitor;
+mod cpu_monitor;
+mod data_stream;
+mod memory_monitor;
+mod process_monitor;
 mod utils;
 
-pub use self::datastream::SysDataStream as SysDataStream;
-pub use self::cpumonitor::CPUMonitor as CPUMonitor;
-pub use self::memorymonitor::MemoryMonitor as MemoryMonitor;
-pub use self::processmonitor::ProcessMonitor as ProcessMonitor;
+pub use self::cpu_monitor::CPUMonitor;
+pub use self::data_stream::SysDataStream;
+pub use self::memory_monitor::MemoryMonitor;
+pub use self::process_monitor::ProcessMonitor;

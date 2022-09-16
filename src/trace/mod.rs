@@ -1,13 +1,12 @@
 use serde_derive::{Deserialize, Serialize};
 
-pub mod ui;
 pub mod app;
-pub mod event;
 pub mod cmd;
+pub mod event;
+pub mod ui;
 
-mod appdatastreams;
+mod app_data_streams;
 mod datastreams;
-
 
 /// CSV output record
 #[derive(Debug, Serialize, Deserialize, Default)]
@@ -19,11 +18,7 @@ pub struct Record<'a> {
 }
 
 impl Record<'static> {
-    pub fn new<'a>( time: &'a str, cpu: &'a str, mem: &'a str) -> Record<'a> {
-        Record{
-            time,
-            cpu,
-            mem
-        }
+    pub fn new<'a>(time: &'a str, cpu: &'a str, mem: &'a str) -> Record<'a> {
+        Record { time, cpu, mem }
     }
 }

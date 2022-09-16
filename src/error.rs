@@ -1,6 +1,5 @@
-use thiserror::Error;
 use std::io;
-use std::fmt;
+use thiserror::Error;
 
 pub type Result<T> = std::result::Result<T, TraceError>;
 
@@ -15,11 +14,10 @@ pub enum TraceError {
     /// IO error
     #[error("{0}")]
     IoError(String),
-    /// visualisation error
-    #[error("{0}")]
-    Visualization(String),
+    // /// visualisation error
+    // #[error("{0}")]
+    // Visualization(String),
 }
-
 
 // impl fmt::Display for TraceError {
 //     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
