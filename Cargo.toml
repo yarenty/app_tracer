@@ -11,11 +11,9 @@ description = "Live tracing of applications."
 categories = ["command-line-utilities"]
 keywords = [
     "benchmark",
-    "cli",
     "trace",
     "tracing",
     "tui",
-    "visualisation",
     "observability"
 ]
 
