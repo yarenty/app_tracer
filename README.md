@@ -1,170 +1,85 @@
-# Benchmark
+# TRACER
 
-Full benchmarking solution for separate end-to-end applications.
-
-## High level idea
-In the loop:
-- run application
-- collect all interested readings:
-    - time
-    - CPU
-    - memory
-
-Process outputs and provide results as:
-- csv/excel
-- graphs
-
-Save outputs to local DB/file to check downgrade/speedup in next release of application.
+Trace live application either as child process or separate PID, collecting /displaying stats ( cpu usage, memory usage).
 
 
+## CLI
 
-
-## Methodology
-
-For each benchmark run:
-- run multiple times (default 10)
-- remove outliers
-- average output results
-
-
-![methodology](img/testing_methodology.png)
-
-## Build
+### Build
 
 ```shell
-cargo build -bin benchmark
+cargo build -r --bin tracer 
 ```
-
-
-
-## Build
+### Usage
 
 ```shell
-cargo build -r --bin benchmark 
-```
-
-## Usage
-
-###  Simple application
-```shell
-./benchmark -a <your_application>
-```
-
-
-### Application with parameters
-
-Since internally collecting data is dependent on gnu time, if your app could have its own parameters - please put them in sh script ie:
-
-```shell
-./benchmark -a tested_app_1.sh
-```
-
-where tested_app_1.sh :
-```shell
-<your_application> param1 param2 param3
-```
-
-Note: make sure :
-```shell
-chmod +x tested_app_1.sh
-```
-
-
-### Other params
-```shell
-benchmark 0.1.0
-<yarenty> yarenty@gmail.com
-Benchmarking applications.
+app-tracer 0.1.0
+Tracing / benchmarking long running applications (ie: streaming).
 
 USAGE:
-    benchmark [OPTIONS] --application <APPLICATION>
+    tracer [OPTIONS] [APPLICATION]
+
+ARGS:
+    <APPLICATION>    Application to be run as child process (alternatively provide PID of
+                     running app)
 
 OPTIONS:
-    -a, --application <APPLICATION>    Application path (just name if in the same directory)
-    -h, --help                         Print help information
-    -l, --log <LOG>                    Set custom log level: info, debug, trace [default: info]
-    -r, --runs <RUNS>                  Number of application runs to be executed [default: 10]
-    -V, --version                      Print version information
+    -h, --help                 Print help information
+    -l, --log <LOG>            Set custom log level: info, debug, trace [default: info]
+    -o, --output <OUTPUT>      Name of output CSV file with all readings - for future investigations
+                               [default: output.csv]
+    -p, --pid <PID>            PID of external process
+    -r, --refresh <REFRESH>    Refresh rate in miliseconds [default: 1000]
+    -V, --version              Print version information
 
 ```
 
-
-
-
-
-
-## Example output
+### Example output
 
 ```log
-09:33:24.899 (t: main) INFO - benchmark - Application to be benchmark is: /opt/workspace/ballista/target/release/examples/example_processing
-09:33:24.899 (t: main) INFO - benchmark - Number of runs: 10
-09:33:24.902 (t: main) INFO - benchmark - Collecting data::example_processing
-09:33:24.902 (t: main) INFO - benchmark::bench::analysis - Run 0 of 10
-09:33:24.947 (t: main) INFO - benchmark::bench::analysis - Run 1 of 10
-09:33:24.983 (t: main) INFO - benchmark::bench::analysis - Run 2 of 10
-09:33:25.016 (t: main) INFO - benchmark::bench::analysis - Run 3 of 10
-09:33:25.049 (t: main) INFO - benchmark::bench::analysis - Run 4 of 10
-09:33:25.087 (t: main) INFO - benchmark::bench::analysis - Run 5 of 10
-09:33:25.132 (t: main) INFO - benchmark::bench::analysis - Run 6 of 10
-09:33:25.188 (t: main) INFO - benchmark::bench::analysis - Run 7 of 10
-09:33:25.238 (t: main) INFO - benchmark::bench::analysis - Run 8 of 10
-09:33:25.288 (t: main) INFO - benchmark::bench::analysis - Run 9 of 10
-09:33:25.338 (t: main) INFO - benchmark - Processing outputs
-0.04,130,18752,
-0.03,140,18664,
-0.03,156,18856,
-0.03,153,18868,
-0.04,152,18884,
-0.04,140,18904,
-0.05,136,19404,
-0.05,145,19220,
-0.05,137,18780,
-0.05,138,18788,
-09:33:25.339 (t: main) INFO - benchmark::bench::collector - SUMMARY:
-09:33:25.339 (t: main) INFO - benchmark::bench::collector - Time [ms]:: min: 30, max: 50, avg: 41 ms
-09:33:25.339 (t: main) INFO - benchmark::bench::collector - CPU [%]:: min: 130, max: 156, avg: 142.7 %
-09:33:25.339 (t: main) INFO - benchmark::bench::collector - Memory [kB]:: min: 18664, max: 19404, avg: 18912 kB
+12:20:23.407 (t: main) INFO - tracer - Application by PID to be benchmark is: 5344
+12:20:23.408 (t: main) INFO - tracer - Refresh rate: 1000
+12:20:23.408 (t: main) INFO - tracer - Starting with PID::5344
+12:20:24.493 (t: main) INFO - tracer - CPU: 0, MEM: 3780952064
+12:20:25.498 (t: main) INFO - tracer - CPU: 6.6926346, MEM: 3780952064
+12:20:26.500 (t: main) INFO - tracer - CPU: 7.279213, MEM: 3780952064
+12:20:27.505 (t: main) INFO - tracer - CPU: 6.3983507, MEM: 3780952064
+12:20:28.510 (t: main) INFO - tracer - CPU: 7.1348634, MEM: 3780952064
+12:20:29.514 (t: main) INFO - tracer - CPU: 7.176454, MEM: 3780952064
+```
 
-Process finished with exit code 0
+## TUI
 
+### Build
+
+```shell
+cargo build -r --bin uitracer 
+```
+
+### Usage
+
+```shell
+ cargo run --bin uitracer -- /opt/workspace/app_banchmark/target/debug/examples/test_app   
+ 
+```
+
+### Example output
+
+```log
 
 ```
 
-Also in current directory of benchmark app there is output directory created named "bench_<your_app_name>", ie: bench_example_processing, which contains:
+![uitracker screnshot](docs/img/uitracker.png)
 
-Output csv file:
-- [benchmarks.csv](bench_example_processing/benchmarks.csv)
+Also in current directory output csv file is generated for future processing / investigation.
+
+Example output.csv file:
 
 ```csv
 Time,Cpu,Mem
-0.04,130,18752
-0.03,140,18664
-0.03,156,18856
-0.03,153,18868
-0.04,152,18884
-0.04,140,18904
-0.05,136,19404
-0.05,145,19220
-0.05,137,18780
-0.05,138,18788
+16:57:24.826086,4268572672,0
+16:57:25.828262,4268498944,11.10776
+16:57:26.829334,4268498944,6.1443987
+
 ```
 
-and  output graphs:
-
-
-- [time.svg](bench_example_processing/time.svg)
-  ![time.svg](bench_example_processing/time.svg)
-
-- [cpu.svg](bench_example_processing/cpu.svg)
-  ![cpu.svg](bench_example_processing/cpu.svg)
-
-
-- [mem.svg](bench_example_processing/mem.svg)
-  ![mem.svg](bench_example_processing/mem.svg)
-
-
-TODO:
-- incremental runs - use date/time in output dir
-- memory - MB instead kB
-- add examples with sh
-- local db / or file struct to see changes in time - trends

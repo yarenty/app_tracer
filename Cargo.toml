@@ -1,0 +1,61 @@
+[package]
+name = "app-tracer"
+authors = ["yarenty <yarenty@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/yarenty/app_tracer"
+homepage = "https://github.com/yarenty/app_tracer"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+description = "Live tracing of application."
+categories = ["command-line-utilities"]
+keywords = [
+    "benchmark",
+    "cli",
+    "trace",
+    "tracing",
+    "tui",
+    "visualisation"
+]
+
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+humantime = "2"
+clap = { version = "3.2", features = ["derive", "color"]}
+poloto = "15.2"
+tagger ="4"
+chrono ="0.4"
+log = "0.4"
+env_logger = "0.9"
+thiserror = "1"
+csv = "1"
+serde = "1"
+serde_derive = "1"
+itertools = "0.10"
+sysinfo = "0.26"
+nix = { version =  "0.25", features = ["process", "pthread", "ptrace"] }
+
+termion = "1.5.5"
+stderrlog = "0.4.3"
+tui = "0.9.1"
+num-traits = "0.2"
+
+
+[build-dependencies]
+dirs = "1.0.5"
+
+
+[dev-dependencies]
+criterion = "0.3"
+ctrlc = "3"
+
+
+[[bin]]
+name = "tracer"
+path = "src/tracer.rs"
+
+
+[[bin]]
+name = "uitracer"
+path = "src/tracer_ui.rs"
