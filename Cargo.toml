@@ -5,9 +5,9 @@ version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/yarenty/app_tracer"
 homepage = "https://github.com/yarenty/app_tracer"
-license = "MIT OR Apache-2.0"
+license = "MIT/Apache-2.0"
 readme = "README.md"
-description = "Live tracing of application."
+description = "Live tracing of applications."
 categories = ["command-line-utilities"]
 keywords = [
     "benchmark",
@@ -15,7 +15,8 @@ keywords = [
     "trace",
     "tracing",
     "tui",
-    "visualisation"
+    "visualisation",
+    "observability"
 ]
 
 
