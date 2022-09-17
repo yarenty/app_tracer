@@ -1,5 +1,4 @@
-use sysinfo::{Pid, ProcessExt, System, SystemExt};
-
+use crate::trace::datastreams::data_stream::Readings;
 use crate::trace::datastreams::{data_stream::SysDataStream, utils};
 
 pub struct MemoryMonitor {
@@ -21,13 +20,9 @@ impl SysDataStream for MemoryMonitor {
         }
     }
 
-    fn poll(&mut self, system_info: &mut System, pid: &Pid) {
-        system_info.refresh_process(*pid);
-
-        let pr = system_info.process(*pid).unwrap();
-
-        self.memory_usage = pr.memory();
-        self.total_memory = system_info.total_memory();
+    fn poll(&mut self, system_info: &Readings) {
+        self.memory_usage = system_info.get_mem();
+        self.total_memory = system_info.get_total_memory();
 
         while self.memory_usage_history.len() >= self.max_history_len {
             self.memory_usage_history.remove(0);

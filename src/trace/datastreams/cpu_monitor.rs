@@ -1,6 +1,8 @@
-use crate::trace::datastreams::{data_stream::SysDataStream, utils};
+use crate::trace::datastreams::{
+    data_stream::{Readings, SysDataStream},
+    utils,
+};
 use std::collections::HashMap;
-use sysinfo::{Pid, ProcessExt, System, SystemExt};
 
 pub struct CPUMonitor {
     pub cpu_usage: f32,
@@ -21,12 +23,10 @@ impl SysDataStream for CPUMonitor {
         }
     }
 
-    fn poll(&mut self, system_info: &mut System, pid: &Pid) {
+    fn poll(&mut self, system_info: &Readings) {
         self.cpu_core_info.clear();
-        system_info.refresh_process(*pid);
-        let pr = system_info.process(*pid).unwrap();
 
-        let info = ("1".to_string(), pr.cpu_usage() / 100.0); //CPUMonitor::parse_cpu_info(cpu);
+        let info = ("1".to_string(), system_info.get_cpu() / 100.0); //CPUMonitor::parse_cpu_info(cpu);
         self.cpu_core_info.push(info);
         if let Some(entry) = self.cpu_core_info.last() {
             #[allow(clippy::or_fun_call)]
@@ -46,6 +46,6 @@ impl SysDataStream for CPUMonitor {
             );
         }
 
-        self.cpu_usage = pr.cpu_usage();
+        self.cpu_usage = system_info.get_cpu();
     }
 }

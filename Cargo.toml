@@ -1,19 +1,19 @@
 [package]
 name = "app-tracer"
 authors = ["yarenty <yarenty@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 repository = "https://github.com/yarenty/app_tracer"
 homepage = "https://github.com/yarenty/app_tracer"
 license = "MIT/Apache-2.0"
 readme = "README.md"
-description = "Live tracing of applications."
+description = "Monitoring / benchmarking of long running applications ie: server processes, streaming apps. Both CLI and TUI. (Use app-benchmark for benchmarking one-time run apps). "
 categories = ["command-line-utilities"]
 keywords = [
     "benchmark",
     "trace",
-    "tracing",
-    "tui",
+    "monitor",
+    "monitoring",
     "observability"
 ]
 

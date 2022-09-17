@@ -1,7 +1,8 @@
 # TRACER
 
-Trace live application either as child process or separate PID, collecting /displaying stats ( cpu usage, memory usage).
+Monitor live application either as child process or separate PID, collecting /displaying stats ( cpu usage, memory usage).
 
+_Note: For monitoring one-shot applications - see [https://github.com/yarenty/app_benchmark](https://github.com/yarenty/app_benchmark)._
 
 ## CLI
 

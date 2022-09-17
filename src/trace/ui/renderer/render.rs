@@ -39,7 +39,7 @@ fn render_top<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
 
 fn render_intro<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
     let tabs = Tabs::default()
-        .block(Block::default().borders(Borders::ALL).title("Info"))
+        .block(Block::default().borders(Borders::ALL).title("Tracer"))
         .titles(&app.tabs.titles)
         .style(Style::default().fg(Color::Green))
         .highlight_style(Style::default().fg(Color::Yellow))

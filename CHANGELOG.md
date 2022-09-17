@@ -2,8 +2,10 @@
 
 # TODO
 - update TUI to latest version ( use spans, etc..)
-- synchronize CPU output
 
+
+## 0.2.0
+- synchronized CPU output on all tabs
 
 ## 0.1.0
  - initial version
