@@ -1,7 +1,7 @@
 [package]
 name = "app-tracer"
 authors = ["yarenty <yarenty@gmail.com>"]
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 repository = "https://github.com/yarenty/app_tracer"
 homepage = "https://github.com/yarenty/app_tracer"
@@ -27,6 +27,7 @@ tagger ="4"
 chrono ="0.4"
 log = "0.4"
 env_logger = "0.9"
+color-eyre = "0.6"
 thiserror = "1"
 csv = "1"
 serde = "1"
@@ -55,8 +56,3 @@ ctrlc = "3"
 [[bin]]
 name = "tracer"
 path = "src/tracer.rs"
-
-
-[[bin]]
-name = "uitracer"
-path = "src/tracer_ui.rs"

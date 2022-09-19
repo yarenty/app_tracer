@@ -13,10 +13,10 @@ pub struct AppDataStreams {
     pub mem_info: MemoryMonitor,
     pub process_info: ProcessMonitor,
     pub sys_info_src: SysInfoSystem,
-    readings: Readings,
+    pub readings: Readings,
 }
 
-impl<'a> AppDataStreams {
+impl AppDataStreams {
     pub fn new(history_len: usize, interpolation_len: u16, pid: Pid) -> Result<Self> {
         let mut sys = SysInfoSystem::new();
         let readings = Readings::new(&mut sys, pid);

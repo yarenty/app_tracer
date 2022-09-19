@@ -1,5 +1,4 @@
 use crate::trace::app::App;
-use sysinfo::{System, SystemExt};
 
 use tui::backend::Backend;
 use tui::layout::Rect;
@@ -15,9 +14,7 @@ pub fn mem_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
         .style(Style::default().fg(Color::LightGreen))
         .data(&app.mem_panel_memory)];
 
-    let mut s = System::new();
-    s.refresh_system();
-    let mem = (s.total_memory() / 1024 / 1024 / 1024) as f64;
+    let mem = (app.datastreams.readings.get_total_memory() / 1024 / 1024) as f64;
 
     let c100 = format!("{}", mem);
     let c75 = format!("{}", mem * 0.75);

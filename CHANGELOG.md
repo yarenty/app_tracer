@@ -3,7 +3,12 @@
 # TODO
 - update TUI to latest version ( use spans, etc..)
 
-
+## 0.3.0 
+- no more 2 separate apps - simple flag -n (-noui) to use txt mode only
+- added eyre for better error handling in runtime
+- memory readings in KB
+- optional output persistence to csv file
+- 
 ## 0.2.0
 - synchronized CPU output on all tabs
 

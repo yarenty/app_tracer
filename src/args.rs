@@ -12,6 +12,10 @@ pub struct Args {
     #[clap(short, long, value_parser)]
     pub pid: Option<i32>,
 
+    /// No UI - only text output.
+    #[clap(short, long, action)]
+    pub noui: bool,
+
     /// Refresh rate in miliseconds.
     #[clap(short, long)]
     #[clap(default_value_t = 1000)]
@@ -19,8 +23,7 @@ pub struct Args {
 
     /// Name of output CSV file with all readings - for future investigations.
     #[clap(short, long)]
-    #[clap(default_value = "output.csv")]
-    pub output: String,
+    pub output: Option<String>,
 
     ///Set custom log level: info, debug, trace
     #[clap(short, long, default_value = "info")]

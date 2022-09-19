@@ -1,21 +1,40 @@
+#[macro_use]
+extern crate log;
+
+use clap::Parser;
+use std::fs::File;
+use std::io;
+use std::process::{exit, Command, Stdio};
+use std::sync::mpsc;
+use std::thread;
+use std::time;
+use std::time::Duration;
+use sysinfo::{Pid, ProcessExt, System, SystemExt};
+
+use termion::{
+    event,
+    input::{MouseTerminal, TermRead},
+    raw::IntoRawMode,
+    screen::AlternateScreen,
+};
+
+use tui::backend::TermionBackend;
+use tui::Terminal;
+
+use color_eyre::eyre::{eyre, Result};
+use csv::Writer;
+
 mod args;
 mod error;
 mod trace;
 mod utils;
 
-use chrono::prelude::*;
-use clap::Parser;
-use log::info;
-use std::process::{exit, Command, Stdio};
-use std::thread;
-use std::time::Duration;
-use sysinfo::{Pid, ProcessExt, System, SystemExt};
+use crate::trace::{app::App, cmd::Cmd, event::Event, ui::renderer::render, Record};
+
+use utils::{check_in_current_dir, get_current_working_dir, setup_logger};
 
 use crate::args::Args;
-use crate::trace::Record;
-use crate::utils::{check_in_current_dir, create_file, get_current_working_dir};
-use error::{Result, TraceError};
-use utils::setup_logger;
+use crate::utils::create_file;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -32,6 +51,9 @@ fn _main() -> Result<()> {
     let args = Args::parse();
     setup_logger(true, Some(&args.log));
 
+    debug!("Start");
+    // let app = "/opt/workspace/app_banchmark/target/debug/examples/test_app";
+
     let id: i32;
     if let Some(app) = &args.application {
         info!("Application to be benchmark is: {}", app);
@@ -43,7 +65,9 @@ fn _main() -> Result<()> {
         let cmd = Command::new(&path)
             .current_dir(get_current_working_dir())
             .stdin(Stdio::null())
-            .stdout(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            // .stderr((Stdio::piped())
             .spawn()
             .expect("Failed to run ");
 
@@ -53,34 +77,115 @@ fn _main() -> Result<()> {
         info!("Application by PID to be benchmark is: {:?}", pid);
         id = *pid;
     } else {
-        return Err(TraceError::Unknown("Not sure what supposed to trace. Please provide application to run on PID. [Use -h for help]".to_string()));
+        return Err(eyre!("Not sure what supposed to trace. Please provide application to run on PID. [Use -h for help]".to_string()));
     }
 
     let refresh_millis = args.refresh;
-    info!("Refresh rate: {}", refresh_millis);
+    info!("Refresh rate: {} ms.", refresh_millis);
 
-    let mut wtr = csv::Writer::from_writer(create_file(&args.output).inner);
+    let mut writer: Option<Writer<File>> = args
+        .output
+        .as_ref()
+        .map(|path| csv::Writer::from_writer(create_file(path).inner));
+    match writer {
+        Some(_) => info!("Output readings persisted into {}", args.output.unwrap()),
+        None => info!("No output persistence."),
+    }
 
     let pid: Pid = Pid::from(id);
     info!("Starting with PID::{}", pid);
-    let mut s = System::new_all();
 
-    loop {
-        thread::sleep(Duration::from_millis(refresh_millis));
-        s.refresh_process(pid);
-        let process = s.process(pid).unwrap();
-        let t = format!("{}", Utc::now().time());
-        let c = format!("{}", process.cpu_usage());
-        let m = format!("{}", process.memory());
-        info!("CPU: {}, MEM: {}", c, m,);
-        let r = Record::new(&t, &m, &c);
-        wtr.serialize(r).expect("Error serializing outputs to csv");
-        match wtr.flush() {
-            Ok(_) => Ok(()),
-            Err(e) => Err(TraceError::IoError(format!(
-                "Could not create output csv: {:?}",
-                e
-            ))),
-        };
+    if args.noui {
+        let mut system = System::new_all();
+
+        info!("Running in TXT mode.");
+        loop {
+            thread::sleep(Duration::from_millis(refresh_millis));
+            system.refresh_process(pid);
+            let process = system.process(pid).unwrap();
+            let t = format!("{}", chrono::Utc::now().time());
+            let c = format!("{}", process.cpu_usage());
+            let m = format!("{}", process.memory() / 1024);
+            info!("CPU: {}, MEM: {}", c, m,);
+            if let Some(wtr) = &mut writer {
+                let r = Record::new(&t, &c, &m);
+                wtr.serialize(r).expect("Error serializing outputs to csv");
+                wtr.flush()?;
+            }
+        }
+    } else {
+        info!("Running in TUI mode.");
+
+        //Program
+        let mut app = App::new(5000, 50, pid)?;
+        let (tx, rx) = mpsc::channel();
+        let input_tx = tx.clone();
+
+        thread::spawn(move || {
+            let stdin = io::stdin();
+            for c in stdin.keys() {
+                let evt = c.unwrap();
+                input_tx.send(Event::Input(evt)).unwrap();
+                if evt == event::Key::Char('q') {
+                    break;
+                }
+            }
+        });
+
+        thread::spawn(move || {
+            let tx = tx;
+            loop {
+                tx.send(Event::Tick).unwrap();
+                thread::sleep(time::Duration::from_millis(refresh_millis));
+            }
+        });
+
+        let stdout = io::stdout().into_raw_mode()?;
+        let stdout = MouseTerminal::from(stdout);
+        let stdout = AlternateScreen::from(stdout);
+        let backend = TermionBackend::new(stdout);
+        let mut terminal = Terminal::new(backend)?;
+        terminal.clear()?;
+        terminal.hide_cursor()?;
+
+        let clk_split = 0;
+
+        loop {
+            let evt = rx.recv().unwrap();
+            {
+                match evt {
+                    Event::Input(input) => {
+                        if let Some(command) = app.input_handler(input) {
+                            match command {
+                                Cmd::Quit => {
+                                    break;
+                                } //_ => (),
+                            }
+                        }
+                    }
+                    Event::Tick => {
+                        if clk_split % 2 == 0 {
+                            app.update()?;
+                            if let Some(wtr) = &mut writer {
+                                let t = format!("{}", chrono::Utc::now().time());
+                                let c = format!("{}", app.datastreams.readings.get_cpu());
+                                let m = format!("{}", app.datastreams.readings.get_mem());
+                                let r = Record::new(&t, &c, &m);
+                                wtr.serialize(r).expect("Error serializing outputs to csv");
+                                wtr.flush()?;
+                            }
+                        }
+                    }
+                }
+            }
+
+            render(&mut terminal, &app)?;
+        }
+        terminal.show_cursor().unwrap();
+        terminal.clear().unwrap();
     }
+    if let Some(wtr) = &mut writer {
+        wtr.flush()?;
+    }
+    Ok(())
 }

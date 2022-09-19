@@ -1,5 +1,4 @@
 use crate::trace::app::App;
-use sysinfo::{System, SystemExt};
 
 use tui::backend::Backend;
 use tui::layout::Rect;
@@ -27,10 +26,7 @@ pub fn cpu_usage_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Re
         })
         .collect::<Vec<Dataset>>();
 
-    let mut s = System::new();
-    s.refresh_system();
-    // let cpus = (s.cpus().len() / 4) as f64;
-    let cpus = (s.cpus().len()) as f64;
+    let cpus = (app.datastreams.readings.get_cpus_count()) as f64;
     let c100 = format!("{}", cpus * 100.0);
     let c75 = format!("{}", cpus * 75.0);
     let c50 = format!("{}", cpus * 50.0);
