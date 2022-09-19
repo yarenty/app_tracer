@@ -3,6 +3,8 @@
 # TODO
 - update TUI to latest version ( use spans, etc..)
 
+## 0.4.0
+
 ## 0.3.0 
 - no more 2 separate apps - simple flag -n (-noui) to use txt mode only
 - added eyre for better error handling in runtime

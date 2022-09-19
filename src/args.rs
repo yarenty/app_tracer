@@ -16,12 +16,12 @@ pub struct Args {
     #[clap(short, long, action)]
     pub noui: bool,
 
-    /// Refresh rate in miliseconds.
+    /// Refresh rate in milliseconds.
     #[clap(short, long)]
     #[clap(default_value_t = 1000)]
     pub refresh: u64,
 
-    /// Name of output CSV file with all readings - for future investigations.
+    /// Name of output CSV file with all readings - for further investigations.
     #[clap(short, long)]
     pub output: Option<String>,
 

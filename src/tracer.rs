@@ -56,11 +56,8 @@ fn _main() -> Result<()> {
 
     let id: i32;
     if let Some(app) = &args.application {
-        info!("Application to be benchmark is: {}", app);
-        info!("Refresh rate: {}", &args.refresh);
-
         let (path, app) = check_in_current_dir(app)?;
-        info!("App:: {}  in dir {}", app, path);
+        info!("Application to be monitored is: {}, in dir {}", app, path);
 
         let cmd = Command::new(&path)
             .current_dir(get_current_working_dir())
@@ -72,12 +69,11 @@ fn _main() -> Result<()> {
             .expect("Failed to run ");
 
         id = cmd.id() as i32;
-        info!("CMD::{:?}", cmd);
     } else if let Some(pid) = &args.pid {
-        info!("Application by PID to be benchmark is: {:?}", pid);
+        info!("Application to be monitored is: [PID] {:?}", pid);
         id = *pid;
     } else {
-        return Err(eyre!("Not sure what supposed to trace. Please provide application to run on PID. [Use -h for help]".to_string()));
+        return Err(eyre!("Not sure what supposed to trace. Please provide application path or PID. [Use -h for help]".to_string()));
     }
 
     let refresh_millis = args.refresh;
@@ -88,7 +84,7 @@ fn _main() -> Result<()> {
         .as_ref()
         .map(|path| csv::Writer::from_writer(create_file(path).inner));
     match writer {
-        Some(_) => info!("Output readings persisted into {}", args.output.unwrap()),
+        Some(_) => info!("Output readings persisted into \"{}\".", args.output.unwrap()),
         None => info!("No output persistence."),
     }
 
@@ -106,7 +102,7 @@ fn _main() -> Result<()> {
             let t = format!("{}", chrono::Utc::now().time());
             let c = format!("{}", process.cpu_usage());
             let m = format!("{}", process.memory() / 1024);
-            info!("CPU: {}, MEM: {}", c, m,);
+            info!("CPU: {} [%],  memory: {} [kB]", c, m,);
             if let Some(wtr) = &mut writer {
                 let r = Record::new(&t, &c, &m);
                 wtr.serialize(r).expect("Error serializing outputs to csv");
