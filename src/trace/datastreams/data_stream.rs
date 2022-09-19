@@ -1,6 +1,6 @@
 use sysinfo::{Pid, PidExt, Process, ProcessExt, System, SystemExt};
 
-/// Cache structure between calls to system.refresh - to make sure all output is the same, 
+/// Cache structure between calls to system.refresh - to make sure all output is the same,
 /// and get proper CPU readings (they need some time between consecutive calls)
 pub struct Readings {
     pid: u32,

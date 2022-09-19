@@ -4,7 +4,7 @@ extern crate log;
 use clap::Parser;
 use std::fs::File;
 use std::io;
-use std::process::{exit, Command, Stdio};
+use std::process::{Command, Stdio};
 use std::sync::mpsc;
 use std::thread;
 use std::time;
@@ -23,6 +23,7 @@ use tui::Terminal;
 
 use color_eyre::eyre::{eyre, Result};
 use csv::Writer;
+use itertools::Itertools;
 
 mod args;
 mod error;
@@ -38,16 +39,6 @@ use crate::utils::create_file;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    exit(match _main() {
-        Ok(_) => 0,
-        Err(err) => {
-            eprintln!("error: {:?}", err);
-            1
-        }
-    });
-}
-
-fn _main() -> Result<()> {
     let args = Args::parse();
     setup_logger(true, Some(&args.log));
 
@@ -55,12 +46,21 @@ fn _main() -> Result<()> {
     // let app = "/opt/workspace/app_banchmark/target/debug/examples/test_app";
 
     let id: i32;
-    if let Some(app) = &args.application {
+    if let Some(app) = args.application {
+        let with_params = app.split(' ').collect_vec();
+        let apt = app.as_str();
+        let (app, params) = if let Some((a, p)) = with_params.split_first() {
+            (a, p)
+        } else {
+            (&apt, [""].as_slice())
+        };
+
         let (path, app) = check_in_current_dir(app)?;
         info!("Application to be monitored is: {}, in dir {}", app, path);
 
         let cmd = Command::new(&path)
             .current_dir(get_current_working_dir())
+            .args(params)
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::null())
@@ -84,7 +84,10 @@ fn _main() -> Result<()> {
         .as_ref()
         .map(|path| csv::Writer::from_writer(create_file(path).inner));
     match writer {
-        Some(_) => info!("Output readings persisted into \"{}\".", args.output.unwrap()),
+        Some(_) => info!(
+            "Output readings persisted into \"{}\".",
+            args.output.unwrap()
+        ),
         None => info!("No output persistence."),
     }
 

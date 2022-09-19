@@ -4,6 +4,8 @@
 - update TUI to latest version ( use spans, etc..)
 
 ## 0.4.0
+- support for apps that has they own parameters 
+```./tracer -n -o aa.csv "/opt/workspace/app_tracer/target/debug/examples/test_app -a 10000 -b -c"```
 
 ## 0.3.0 
 - no more 2 separate apps - simple flag -n (-noui) to use txt mode only
