@@ -120,6 +120,7 @@ async fn main() -> Result<()> {
         let (tx, rx) = mpsc::channel();
         let input_tx = tx.clone();
 
+        debug!("Chanels registered");
         thread::spawn(move || {
             let stdin = io::stdin();
             for c in stdin.keys() {
@@ -131,6 +132,7 @@ async fn main() -> Result<()> {
             }
         });
 
+        debug!("Ticker starting");
         thread::spawn(move || {
             let tx = tx;
             loop {
@@ -144,11 +146,14 @@ async fn main() -> Result<()> {
         let stdout = AlternateScreen::from(stdout);
         let backend = TermionBackend::new(stdout);
         let mut terminal = Terminal::new(backend)?;
+
+        debug!("Cleaning and into terminal mode");
         terminal.clear()?;
         terminal.hide_cursor()?;
 
         let clk_split = 0;
 
+        debug!("Into loop");
         loop {
             let evt = rx.recv().unwrap();
             {
@@ -180,6 +185,8 @@ async fn main() -> Result<()> {
 
             render(&mut terminal, &app)?;
         }
+
+        debug!("Back with cursor and original terminal");
         terminal.show_cursor().unwrap();
         terminal.clear().unwrap();
     }

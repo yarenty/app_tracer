@@ -99,7 +99,13 @@ impl<'a> App<'a> {
                         }
                     }
                 } else {
-                    panic!("Cannot get CPU ID");
+                    #[allow(clippy::match_wild_err_arm)]
+                    match core_name.parse::<u32>() {
+                        Ok(num) => core_num = num -1,
+                        Err(_) => {
+                            panic!("Unable to parse CPU ID")
+                        }
+                    }
                 }
 
                 //fixed number of cores
