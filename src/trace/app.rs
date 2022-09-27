@@ -22,10 +22,16 @@ pub struct App<'a> {
     pub mem_panel_memory: Vec<(f64, f64)>,
     pub mem_usage_str: String,
     pub datastreams: AppDataStreams,
+    pub autoscale: bool,
 }
 
 impl<'a> App<'a> {
-    pub fn new(history_len: usize, interpolation_len: u16, pid: Pid) -> Result<Self> {
+    pub fn new(
+        history_len: usize,
+        interpolation_len: u16,
+        pid: Pid,
+        autoscale: bool,
+    ) -> Result<Self> {
         Ok(Self {
             pid,
             selected_proc: 0,
@@ -38,6 +44,7 @@ impl<'a> App<'a> {
             mem_panel_memory: Vec::new(),
             mem_usage_str: String::new(),
             datastreams: AppDataStreams::new(history_len, interpolation_len, pid)?,
+            autoscale,
         })
     }
 
@@ -101,7 +108,7 @@ impl<'a> App<'a> {
                 } else {
                     #[allow(clippy::match_wild_err_arm)]
                     match core_name.parse::<u32>() {
-                        Ok(num) => core_num = num -1,
+                        Ok(num) => core_num = num - 1,
                         Err(_) => {
                             panic!("Unable to parse CPU ID")
                         }
@@ -110,7 +117,7 @@ impl<'a> App<'a> {
 
                 //fixed number of cores
                 core_name = format!(
-                    "CPU: ({:.2}%)",
+                    "Total CPU: ({:.2}%)",
                     (self.datastreams.cpu_info.cpu_core_info[(core_num) as usize].1 * 100.0)
                         .to_string()
                 );
@@ -129,7 +136,7 @@ impl<'a> App<'a> {
                 .map(|(i, u)| (i as f64, *u))
                 .collect::<Vec<(f64, f64)>>();
             self.mem_usage_str = format!(
-                "Memory ({:.2}%)",
+                "Total memory ({:.2}%)",
                 100.0 * self.datastreams.mem_info.memory_usage as f64
                     / self.datastreams.mem_info.total_memory as f64
             );

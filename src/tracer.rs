@@ -43,7 +43,6 @@ async fn main() -> Result<()> {
     setup_logger(true, Some(&args.log));
 
     debug!("Start");
-    // let app = "/opt/workspace/app_banchmark/target/debug/examples/test_app";
 
     let id: i32;
     if let Some(app) = args.application {
@@ -116,11 +115,11 @@ async fn main() -> Result<()> {
         info!("Running in TUI mode.");
 
         //Program
-        let mut app = App::new(5000, 50, pid)?;
+        let mut app = App::new(5000, 50, pid, !args.autoscale)?;
         let (tx, rx) = mpsc::channel();
         let input_tx = tx.clone();
 
-        debug!("Chanels registered");
+        debug!("Channels registered");
         thread::spawn(move || {
             let stdin = io::stdin();
             for c in stdin.keys() {

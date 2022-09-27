@@ -16,6 +16,10 @@ pub struct Args {
     #[clap(short, long, action)]
     pub noui: bool,
 
+    /// To switch off auto scale - this will use whole CPU/MEM in the graphs.
+    #[clap(short, long, action)]
+    pub autoscale: bool,
+
     /// Refresh rate in milliseconds.
     #[clap(short, long)]
     #[clap(default_value_t = 1000)]

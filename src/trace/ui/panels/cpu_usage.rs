@@ -1,5 +1,6 @@
 use crate::trace::app::App;
 
+use itertools::Itertools;
 use tui::backend::Backend;
 use tui::layout::Rect;
 use tui::style::{Color, Modifier, Style};
@@ -26,7 +27,19 @@ pub fn cpu_usage_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Re
         })
         .collect::<Vec<Dataset>>();
 
-    let cpus = (app.datastreams.readings.get_cpus_count()) as f64;
+    let cpus = if app.autoscale {
+        let cpu_data = &app.cpu_panel_memory.get(&0).unwrap().1;
+        let auto: _ = cpu_data.iter().map(|(_x, y)| y).collect_vec();
+        // println!("auto:{:?}", auto);
+        let auto = auto.iter().max_by(|a, b| a.total_cmp(b)).or(Some(&&1.0));
+        // println!("MAX:{:?}", auto);
+        let m = auto.unwrap().max(1.0);
+        let m = m.min(app.datastreams.readings.get_cpus_count() as f64);
+
+        (m + 0.2).round()
+    } else {
+        app.datastreams.readings.get_cpus_count() as f64
+    };
     let c100 = format!("{}", cpus * 100.0);
     let c75 = format!("{}", cpus * 75.0);
     let c50 = format!("{}", cpus * 50.0);

@@ -3,6 +3,9 @@
 # TODO
 - update TUI to latest version ( use spans, etc..)
 
+## 0.5.0
+- autoscale by default - graphs looks much nicer ;-)
+
 ## 0.4.1
 - support WSL
 - fixed linux CPU id 
