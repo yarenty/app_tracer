@@ -3,6 +3,9 @@
 # TODO
 - update TUI to latest version ( use spans, etc..)
 
+## 0.6.0
+- use summary readings from current PID and children PIDs
+
 ## 0.5.0
 - autoscale by default - graphs looks much nicer ;-)
 

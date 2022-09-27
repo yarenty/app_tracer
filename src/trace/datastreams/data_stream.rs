@@ -1,4 +1,4 @@
-use sysinfo::{Pid, PidExt, Process, ProcessExt, System, SystemExt};
+use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
 
 /// Cache structure between calls to system.refresh - to make sure all output is the same,
 /// and get proper CPU readings (they need some time between consecutive calls)
@@ -51,11 +51,9 @@ impl Readings {
     }
 
     /// Refreshing only data provided by traced process
-    pub fn refresh(&mut self, process: &Process) {
-        self.cpu = process.cpu_usage();
-        self.mem = process.memory() / 1024;
-        self.pid = process.pid().as_u32();
-        self.process = String::from(process.name());
+    pub fn refresh(&mut self, cpu: f32, mem: u64) {
+        self.cpu = cpu;
+        self.mem = mem / 1024;
     }
 }
 
