@@ -1,5 +1,7 @@
+use tui::text::Spans;
+
 pub struct Tabs<'a> {
-    pub titles: Vec<&'a str>,
+    pub titles: Vec<Spans<'a>>,
     pub selection: usize,
 }
 

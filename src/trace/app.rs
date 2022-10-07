@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use sysinfo::Pid;
 use termion::event::Key;
 
@@ -7,6 +6,8 @@ use crate::trace::app_data_streams::AppDataStreams;
 use crate::trace::cmd::Cmd;
 use crate::trace::ui::tabs::Tabs;
 use const_format::formatcp;
+use tui::style::{Color, Style};
+use tui::text::{Span, Spans};
 
 const INFO: &str = formatcp!(
     "Live tracing memory and CPU usage, version {}.",
@@ -18,11 +19,13 @@ pub struct App<'a> {
     pub selected_proc: usize,
     pub tabs: Tabs<'a>,
     pub window: [f64; 2],
-    pub cpu_panel_memory: HashMap<u32, (String, Vec<(f64, f64)>)>,
+    pub cpu_panel_memory: Vec<(f64, f64)>,
     pub mem_panel_memory: Vec<(f64, f64)>,
+    pub cpu_usage_str: String,
     pub mem_usage_str: String,
     pub datastreams: AppDataStreams,
     pub autoscale: bool,
+    pub refresh: u64,
 }
 
 impl<'a> App<'a> {
@@ -31,20 +34,28 @@ impl<'a> App<'a> {
         interpolation_len: u16,
         pid: Pid,
         autoscale: bool,
+        refresh: u64,
     ) -> Result<Self> {
         Ok(Self {
             pid,
             selected_proc: 0,
             tabs: Tabs {
-                titles: { vec![INFO, "   q-Quit"] },
+                titles: {
+                    vec![Spans::from(vec![
+                        Span::styled(INFO, Style::default().fg(Color::LightYellow)),
+                        Span::styled("   q-Quit", Style::default().fg(Color::Yellow)),
+                    ])]
+                },
                 selection: 0,
             },
             window: [0.0, history_len as f64],
-            cpu_panel_memory: HashMap::new(),
+            cpu_panel_memory: Vec::new(),
             mem_panel_memory: Vec::new(),
+            cpu_usage_str: String::new(),
             mem_usage_str: String::new(),
             datastreams: AppDataStreams::new(history_len, interpolation_len, pid)?,
             autoscale,
+            refresh,
         })
     }
 
@@ -80,50 +91,17 @@ impl<'a> App<'a> {
         self.datastreams.update()?;
         //CPU History Parsing
         {
-            for (name, usage) in &self.datastreams.cpu_info.cpu_usage_history {
-                let pairwise_data = usage
-                    .iter()
-                    .enumerate()
-                    .map(|x| (x.0 as f64, *x.1 as f64))
-                    .collect::<Vec<(f64, f64)>>();
-                let mut core_name = name.clone();
-                let core_num;
-                if cfg!(target_os = "macos") {
-                    #[allow(clippy::match_wild_err_arm)]
-                    match core_name.parse::<u32>() {
-                        Ok(num) => core_num = num - 1, //MacOS
-                        Err(_) => {
-                            panic!("Unable to parse CPU ID")
-                        }
-                    }
-                } else if core_name.contains("cpu") {
-                    let (_, s) = core_name.split_at_mut(3);
-                    #[allow(clippy::match_wild_err_arm)]
-                    match s.parse::<u32>() {
-                        Ok(num) => core_num = num,
-                        Err(_) => {
-                            panic!("Unable to parse CPU ID")
-                        }
-                    }
-                } else {
-                    #[allow(clippy::match_wild_err_arm)]
-                    match core_name.parse::<u32>() {
-                        Ok(num) => core_num = num - 1,
-                        Err(_) => {
-                            panic!("Unable to parse CPU ID")
-                        }
-                    }
-                }
+            self.cpu_panel_memory = self
+                .datastreams
+                .cpu_info
+                .cpu_usage_history
+                .iter()
+                .enumerate()
+                .map(|(i, u)| (i as f64, *u as f64))
+                .collect::<Vec<(f64, f64)>>();
 
-                //fixed number of cores
-                core_name = format!(
-                    "Total CPU: ({:.2}%)",
-                    (self.datastreams.cpu_info.cpu_core_info[(core_num) as usize].1 * 100.0)
-                        .to_string()
-                );
-                self.cpu_panel_memory
-                    .insert(core_num, (core_name, pairwise_data));
-            }
+            self.cpu_usage_str =
+                format!("Total CPU: ({:.2}%)", self.datastreams.cpu_info.cpu_usage);
         }
         //Memory History Parsing
         {

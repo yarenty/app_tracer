@@ -18,7 +18,7 @@ use termion::{
     screen::AlternateScreen,
 };
 
-use tui::backend::TermionBackend;
+use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
 use color_eyre::eyre::{eyre, Result};
@@ -115,7 +115,7 @@ async fn main() -> Result<()> {
         info!("Running in TUI mode.");
 
         //Program
-        let mut app = App::new(5000, 50, pid, !args.autoscale)?;
+        let mut app = App::new(5000, 50, pid, !args.autoscale, refresh_millis)?;
         let (tx, rx) = mpsc::channel();
         let input_tx = tx.clone();
 
@@ -143,7 +143,7 @@ async fn main() -> Result<()> {
         let stdout = io::stdout().into_raw_mode()?;
         let stdout = MouseTerminal::from(stdout);
         let stdout = AlternateScreen::from(stdout);
-        let backend = TermionBackend::new(stdout);
+        let backend = CrosstermBackend::new(stdout);
         let mut terminal = Terminal::new(backend)?;
 
         debug!("Cleaning and into terminal mode");
