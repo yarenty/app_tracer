@@ -1,7 +1,8 @@
 # Changelog
 
-# TODO
-- update TUI to latest version ( use spans, etc..)
+## 0.7.0
+- simplified CPU history
+- update TUI to latest version
 
 ## 0.6.0
 - use summary readings from current PID and children PIDs

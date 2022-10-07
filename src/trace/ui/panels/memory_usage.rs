@@ -5,6 +5,7 @@ use tui::backend::Backend;
 use tui::layout::Rect;
 use tui::style::{Color, Modifier, Style};
 use tui::symbols::Marker;
+use tui::text::Span;
 use tui::widgets::{Axis, Block, Borders, Chart, Dataset};
 use tui::Frame;
 
@@ -26,7 +27,7 @@ pub fn mem_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
         .iter()
         .map(|(x, y)| (*x, *y * total / mem))
         .collect_vec();
-    let datasets = [Dataset::default()
+    let datasets = vec![Dataset::default()
         .name(&app.mem_usage_str)
         .marker(Marker::Braille)
         .style(Style::default().fg(Color::LightGreen))
@@ -37,32 +38,42 @@ pub fn mem_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
     let c50 = format!("{}", mem * 0.5);
     let c25 = format!("{}", mem * 0.25);
 
-    let labels = ["0", &c25, &c50, &c75, &c100];
+    let style = Style::default().add_modifier(Modifier::ITALIC);
+    // let label = vec![Span::styled("", style)];
+    let labels = vec![
+        Span::styled("0", style),
+        Span::styled(&c25, style),
+        Span::styled(&c50, style),
+        Span::styled(&c75, style),
+        Span::styled(&c100, style),
+    ];
+    let title = Span::styled(
+        "Memory Usage",
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
+    );
 
-    let mem_history_panel = Chart::default()
+    let mem_history_panel = Chart::new(datasets)
         .block(
             Block::default()
-                .title("Memory Usage")
-                .title_style(Style::default().fg(Color::Cyan).modifier(Modifier::BOLD))
-                .borders(Borders::ALL),
+                .title(title)
+                .borders(Borders::ALL)
+                .style(Style::default().fg(Color::Gray)),
         )
         .x_axis(
             Axis::default()
                 .title("")
                 .style(Style::default().fg(Color::Gray))
-                .labels_style(Style::default().modifier(Modifier::ITALIC))
-                .bounds(app.window)
-                .labels(&[""]),
+                .bounds(app.window), // .labels(label),
         )
         .y_axis(
             Axis::default()
                 .title("Usage (GB)")
                 .style(Style::default().fg(Color::Gray))
-                .labels_style(Style::default().modifier(Modifier::ITALIC))
                 .bounds([0.0, 1.0])
-                .labels(&labels),
-        )
-        .datasets(&datasets);
+                .labels(labels),
+        );
 
     f.render_widget(mem_history_panel, area);
 }
