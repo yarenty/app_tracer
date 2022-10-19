@@ -5,6 +5,12 @@ Monitor live application either as child process or separate PID, collecting /di
 _Note: For monitoring one-shot applications - see [https://github.com/yarenty/app_benchmark](https://github.com/yarenty/app_benchmark)._
 
 
+## UI (TUI)
+
+![uitracker screnshot](docs/img/uitracker.png)
+
+
+
 ## Build
 
 ```shell
@@ -76,10 +82,6 @@ cargo run -r -- -n -o out.csv /opt/workspace/app_tracer/target/debug/examples/te
 
 
 ```
-
-## UI
-
-![uitracker screnshot](docs/img/uitracker.png)
 
 
 
