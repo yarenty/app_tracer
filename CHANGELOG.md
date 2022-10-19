@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1
+- removed unnecessary dependencies
+- build size shrunk over 60%+
+
 ## 0.7.0
 - simplified CPU history
 - update TUI to latest version
