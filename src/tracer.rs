@@ -44,6 +44,7 @@ async fn main() -> Result<()> {
 
     debug!("Start");
 
+    let mut kill = false;
     let id: i32;
     if let Some(app) = args.application {
         let with_params = app.split(' ').collect_vec();
@@ -67,6 +68,7 @@ async fn main() -> Result<()> {
             .spawn()
             .expect("Failed to run ");
 
+        kill = true;
         id = cmd.id() as i32;
     } else if let Some(pid) = &args.pid {
         info!("Application to be monitored is: [PID] {:?}", pid);
@@ -192,5 +194,17 @@ async fn main() -> Result<()> {
     if let Some(wtr) = &mut writer {
         wtr.flush()?;
     }
+    // in case of exit from application that was not terminated by user
+    if kill {
+
+        let _ = Command::new("kill")
+            .arg("-9")
+            .arg(format!("{}", id))
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .output();
+    }
+
     Ok(())
 }
