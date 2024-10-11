@@ -1,8 +1,10 @@
 # Changelog
 
+
 ## 0.7.2
 - auto killing application created as subprocess
-
+- adding CI/CD
+- 
 ## 0.7.1
 - removed unnecessary dependencies
 - build size shrunk over 60%+
