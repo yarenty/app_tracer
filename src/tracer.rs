@@ -55,15 +55,20 @@ async fn main() -> Result<()> {
             (&apt, [""].as_slice())
         };
 
+        let mut p = args.args.to_vec();
+        for d in params {
+            p.push(String::from(d.to_string()));
+        }
+
         let (path, app) = check_in_current_dir(app)?;
-        info!("Application to be monitored is: {}, in dir {}", app, path);
+        info!("Application to be monitored is: {}, in dir {} , with params: {:?}", app, path, p);
 
         let cmd = Command::new(&path)
             .current_dir(get_current_working_dir())
-            .args(params)
+            .args(p)
             .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
             // .stderr((Stdio::piped())
             .spawn()
             .expect("Failed to run ");

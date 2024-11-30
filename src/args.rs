@@ -12,11 +12,11 @@ pub struct Args {
     #[clap(short, long, value_parser)]
     pub pid: Option<i32>,
 
-    /// No UI - only text output.
+    /// Switch off UI - csv style output
     #[clap(short, long, action)]
     pub noui: bool,
 
-    /// To switch off auto scale - this will use whole CPU/MEM in the graphs.
+    /// Switch off auto-scale - this will use all available CPU/MEM in the graphs.
     #[clap(short, long, action)]
     pub autoscale: bool,
 
@@ -25,11 +25,22 @@ pub struct Args {
     #[clap(default_value_t = 1000)]
     pub refresh: u64,
 
-    /// Name of output CSV file with all readings - for further investigations.
+    /// CSV output file
     #[clap(short, long)]
     pub output: Option<String>,
 
-    ///Set custom log level: info, debug, trace
+    /// Custom log level: info, debug, trace
     #[clap(short, long, default_value = "info")]
     pub log: String,
+
+    /// Optional program arguments (ignored with PID option)
+    #[arg(last = true)]
+    pub args: Vec<String>,
+}
+
+
+#[test]
+fn verify_cli() {
+    use clap::CommandFactory;
+    Args::command().debug_assert()
 }

@@ -1,7 +1,7 @@
 [package]
 name = "app-tracer"
 authors = ["yarenty <yarenty@gmail.com>"]
-version = "0.7.2"
+version = "0.7.3"
 edition = "2021"
 repository = "https://github.com/yarenty/app_tracer"
 homepage = "https://github.com/yarenty/app_tracer"
@@ -21,7 +21,7 @@ keywords = [
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 #humantime = "2"
-clap = { version = "3.2", features = ["derive", "color"]}
+clap = { version = "4.5", features = ["derive", "color"]}
 #poloto = "15.2"
 tagger ="4"
 chrono ="0.4"

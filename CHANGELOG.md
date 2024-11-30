@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3
+- upgrade clap to 4.x 
+- can run application with additional parameters: tracer application_name -- param1 param2
+- redirected stdout to current stdout
 
 ## 0.7.2
 - auto killing application created as subprocess
