@@ -15,6 +15,7 @@ const INFO: &str = formatcp!(
 );
 
 pub struct App<'a> {
+    #[allow(dead_code)]
     pub pid: Pid,
     pub selected_proc: usize,
     pub tabs: Tabs<'a>,
