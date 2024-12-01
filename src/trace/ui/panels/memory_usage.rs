@@ -13,7 +13,7 @@ pub fn mem_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
     let total = (app.datastreams.readings.get_total_memory() / 1024 / 1024) as f64;
 
     let mem = if app.autoscale {
-        let auto: _ = &app.mem_panel_memory.iter().map(|(_x, y)| y).collect_vec();
+        let auto = &app.mem_panel_memory.iter().map(|(_x, y)| y).collect_vec();
         let auto = auto.iter().max_by(|a, b| a.total_cmp(b)).or(Some(&&0.0));
         let m = auto.unwrap();
 

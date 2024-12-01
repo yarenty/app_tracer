@@ -57,11 +57,14 @@ async fn main() -> Result<()> {
 
         let mut p = args.args.to_vec();
         for d in params {
-            p.push(String::from(d.to_string()));
+            p.push(d.to_string());
         }
 
         let (path, app) = check_in_current_dir(app)?;
-        info!("Application to be monitored is: {}, in dir {} , with params: {:?}", app, path, p);
+        info!(
+            "Application to be monitored is: {}, in dir {} , with params: {:?}",
+            app, path, p
+        );
 
         //TODO: need to rethink
         // cannot move output to stdin as it will destroy tui
@@ -206,7 +209,6 @@ async fn main() -> Result<()> {
     }
     // in case of exit from application that was not terminated by user
     if kill {
-
         let _ = Command::new("kill")
             .arg("-9")
             .arg(format!("{}", id))

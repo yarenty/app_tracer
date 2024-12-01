@@ -23,7 +23,7 @@ pub fn cpu_usage_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Re
 
     let cpus = if app.autoscale {
         let cpu_data = &app.cpu_panel_memory;
-        let auto: _ = cpu_data.iter().map(|(_x, y)| y).collect_vec();
+        let auto = cpu_data.iter().map(|(_x, y)| y).collect_vec();
         // println!("auto:{:?}", auto);
         let auto = auto.iter().max_by(|a, b| a.total_cmp(b)).or(Some(&&1.0));
         // println!("MAX:{:?}", auto);

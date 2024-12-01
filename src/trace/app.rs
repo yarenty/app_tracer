@@ -1,3 +1,4 @@
+use std::sync::LazyLock;
 use sysinfo::Pid;
 use termion::event::Key;
 
@@ -5,14 +6,15 @@ use crate::error::Result;
 use crate::trace::app_data_streams::AppDataStreams;
 use crate::trace::cmd::Cmd;
 use crate::trace::ui::tabs::Tabs;
-use const_format::formatcp;
 use tui::style::{Color, Style};
 use tui::text::{Span, Spans};
 
-const INFO: &str = formatcp!(
-    "Live tracing memory and CPU usage, version {}.",
-    env!("CARGO_PKG_VERSION")
-);
+static INFO: LazyLock<String> = LazyLock::new(|| {
+    format!(
+        "Live tracing memory and CPU usage, version {}.",
+        env!("CARGO_PKG_VERSION")
+    )
+});
 
 pub struct App<'a> {
     #[allow(dead_code)]
@@ -43,7 +45,7 @@ impl<'a> App<'a> {
             tabs: Tabs {
                 titles: {
                     vec![Spans::from(vec![
-                        Span::styled(INFO, Style::default().fg(Color::LightYellow)),
+                        Span::styled(&*INFO, Style::default().fg(Color::LightYellow)),
                         Span::styled("   q-Quit", Style::default().fg(Color::Yellow)),
                     ])]
                 },
