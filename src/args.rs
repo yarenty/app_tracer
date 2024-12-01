@@ -38,7 +38,6 @@ pub struct Args {
     pub args: Vec<String>,
 }
 
-
 #[test]
 fn verify_cli() {
     use clap::CommandFactory;

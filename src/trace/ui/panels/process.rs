@@ -14,7 +14,7 @@ pub fn process_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
 
     let (_, process_to_display) = utils::scrolling(area, app.selected_proc, &process_by_cpu[..]);
 
-    let s = process_to_display.get(0).unwrap();
+    let s = process_to_display.first().unwrap();
     let proc_table = Table::new(vec![
         // Row can be created from simple strings.
         Row::new(vec![
