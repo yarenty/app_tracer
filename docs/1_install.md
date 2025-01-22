@@ -5,14 +5,26 @@
 `cargo install tracer`
 
 
-## Brew
+
+ 
+## Brew -tbd
+
+```bash
+brew install tracer
+```
 
 
+## Chocolatey -tbd
 
-## Chocolatey
+```bash
+choco install tracer
+```
 
 
-## Snap
+## Snap -tbd
 
+```bash
+snap install tracer
+```
 
 TBD
