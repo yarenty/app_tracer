@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.4
+- fix output out/err files creation
+Created two separate files for output:
+{app}.out for stdout
+{app}.err for stderr
+Preserves the TUI functionality since we're not writing to stdout/stderr
+Captures all output in separate files for later analysis
+Uses the application name in the log files for easy identification
+Maintains proper error handling with Rust's ? operator
+The output files will be created in the current working directory and will contain all output from the monitored process. You can now view these files while the application is running or after it completes without interfering with the TUI.
+
 ## 0.7.3
 - upgrade clap to 4.x 
 - can run application with additional parameters: tracer application_name -- param1 param2

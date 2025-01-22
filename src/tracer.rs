@@ -66,18 +66,15 @@ async fn main() -> Result<()> {
             app, path, p
         );
 
-        //TODO: need to rethink
-        // cannot move output to stdin as it will destroy tui
-        // should go to some kind of buffered output
-        // or log to file
-        //TODO: Ctrl+C should be populated with kill command
+        let output_file = File::create(format!("{}.out", app))?;
+        let error_file = File::create(format!("{}.err", app))?;
+        
         let cmd = Command::new(&path)
             .current_dir(get_current_working_dir())
             .args(p)
             .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            // .stderr((Stdio::piped())
+            .stdout(Stdio::from(output_file))
+            .stderr(Stdio::from(error_file))
             .spawn()
             .expect("Failed to run ");
 
