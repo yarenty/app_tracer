@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.6
+- upgrade thiserror to 2.0.11
+- improve error handling with latest thiserror features
+- maintain backward compatibility with existing error types
+
 ## 0.7.5
 - upgrade env_logger to 0.11
 - update logger configuration to use new env_logger API
