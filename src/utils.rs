@@ -1,11 +1,12 @@
 use crate::error::{Result, TraceError};
 use chrono::prelude::*;
-use env_logger::fmt::{Color, Formatter};
+use env_logger::fmt::Formatter;
 use env_logger::{Builder, WriteStyle};
 use log::{Level, LevelFilter, Record};
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::{env, thread};
+use termion::color::{self, Fg};
 
 /// Current output directory
 pub fn get_current_working_dir() -> String {
@@ -86,26 +87,39 @@ pub fn setup_logger(log_thread: bool, rust_log: Option<&str>) {
             "".to_string()
         };
 
-        let mut thread_style = formatter.style();
-        let mut level_style = formatter.style();
-
-        match record.level() {
-            Level::Error => level_style.set_color(Color::Red).set_bold(true),
-            Level::Warn => level_style.set_color(Color::Red),
-            Level::Info => level_style.set_color(Color::Green).set_intense(true),
-            Level::Debug => level_style.set_color(Color::Blue),
-            Level::Trace => level_style.set_color(Color::Magenta),
+        // Define color styles using termion
+        let (level_color, level_style) = match record.level() {
+            Level::Error => (
+                format!("{}", Fg(color::LightRed)),
+                "ERROR".to_string(),
+            ),
+            Level::Warn => (
+                format!("{}", Fg(color::Yellow)),
+                "WARN".to_string(),
+            ),
+            Level::Info => (
+                format!("{}", Fg(color::LightGreen)),
+                "INFO".to_string(),
+            ),
+            Level::Debug => (
+                format!("{}", Fg(color::LightBlue)),
+                "DEBUG".to_string(),
+            ),
+            Level::Trace => (
+                format!("{}", Fg(color::Magenta)),
+                "TRACE".to_string(),
+            ),
         };
-        thread_style.set_color(Color::Magenta).set_intense(true);
 
         let local_time: DateTime<Local> = Local::now();
         let time_str = local_time.format("%H:%M:%S%.3f").to_string();
+        
         writeln!(
             formatter,
-            "{} {}{} - {} - {}",
-            time_str,
-            thread_style.value(thread_name),
-            level_style.value(record.level()),
+            "{}{}{} {}{}{} {}{}{} [{}] - {}",
+            Fg(color::LightCyan), time_str, Fg(color::Reset),
+            Fg(color::LightMagenta), thread_name, Fg(color::Reset),
+            level_color, level_style, Fg(color::Reset),
             record.target(),
             record.args()
         )
@@ -114,10 +128,12 @@ pub fn setup_logger(log_thread: bool, rust_log: Option<&str>) {
     let mut builder = Builder::new();
     builder
         .format(output_format)
-        .filter(None, LevelFilter::Info);
-    builder.write_style(WriteStyle::Always);
+        .filter_level(LevelFilter::Info)
+        .write_style(WriteStyle::Always);
 
-    rust_log.map(|conf| builder.parse_filters(conf));
+    if let Some(conf) = rust_log {
+        builder.parse_env(conf);
+    }
 
     builder.init();
 }
