@@ -1,7 +1,7 @@
 [package]
 name = "app-tracer"
 authors = ["yarenty <yarenty@gmail.com>"]
-version = "0.7.4"
+version = "0.7.5"
 edition = "2021"
 repository = "https://github.com/yarenty/app_tracer"
 homepage = "https://github.com/yarenty/app_tracer"
@@ -20,11 +20,13 @@ keywords = [
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
+#humantime = "2"
 clap = { version = "4.5", features = ["derive", "color"]}
+#poloto = "15.2"
 tagger ="4"
 chrono ="0.4"
 log = "0.4"
-env_logger = "0.9"
+env_logger = { version = "0.11", features = ["color"] }
 color-eyre = "0.6"
 thiserror = "1"
 csv = "1"
@@ -32,21 +34,22 @@ serde = "1"
 serde_derive = "1"
 itertools = "0.10"
 sysinfo = "0.26"
-termion = "1.5.5"
-tui = "0.19.0"
-
-#stderrlog = "0.4.3"
-#num-traits = "0.2"
-#poloto = "15.2"
-#humantime = "2"
+const_format = "0.2"
 #nix = { version =  "0.25", features = ["process", "pthread", "ptrace"] }
-#ctrlc = "3"
+
+
+termion = "1.5.5"
+#stderrlog = "0.4.3"
+tui = "0.19.0"
+#num-traits = "0.2"
+
 
 #[build-dependencies]
 #dirs = "1.0.5"
 
 
 [dev-dependencies]
+criterion = "0.3"
 ctrlc = "3"
 
 [[bin]]
@@ -54,7 +57,7 @@ name = "tracer"
 path = "src/tracer.rs"
 
 
-# Release with minimal size: by default it gets ~16M - debug, ~3.3M - release, with this: ~1.3M (on rust 1.80sh).
+# by default it gets 16M - debug, 3.3M - release, with this: 1.3M
 [profile.release]
 panic = "abort" # Strip expensive panic clean-up logic
 codegen-units = 1 # Compile crates one after another so the compiler can optimize better

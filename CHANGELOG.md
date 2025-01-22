@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.5
+- upgrade env_logger to 0.11
+- update logger configuration to use new env_logger API
+- switch to termion for colored logging output:
+  - bright cyan timestamps
+  - bright magenta thread names
+  - yellow module paths in brackets
+  - improved level colors (bright red errors, yellow warnings, bright green info)
+- improve error handling in logger setup
+
 ## 0.7.4
 - fix output out/err files creation
 Created two separate files for output:
