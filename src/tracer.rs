@@ -37,6 +37,9 @@ use utils::{check_in_current_dir, get_current_working_dir, setup_logger};
 use crate::args::Args;
 use crate::utils::create_file;
 
+use tokio::signal;
+use tokio::runtime::Runtime;
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
@@ -91,6 +94,7 @@ async fn main() -> Result<()> {
         .output
         .as_ref()
         .map(|path| csv::Writer::from_writer(create_file(path).inner));
+        
     match writer {
         Some(_) => info!(
             "Output readings persisted into \"{}\".",
@@ -127,6 +131,7 @@ async fn main() -> Result<()> {
         let mut app = App::new(5000, 50, pid, !args.autoscale, refresh_millis)?;
         let (tx, rx) = mpsc::channel();
         let input_tx = tx.clone();
+        let ticker_tx = tx.clone();
 
         debug!("Channels registered");
         thread::spawn(move || {
@@ -142,9 +147,8 @@ async fn main() -> Result<()> {
 
         debug!("Ticker starting");
         thread::spawn(move || {
-            let tx = tx;
             loop {
-                tx.send(Event::Tick).unwrap();
+                ticker_tx.send(Event::Tick).unwrap();
                 thread::sleep(time::Duration::from_millis(refresh_millis));
             }
         });
@@ -159,6 +163,16 @@ async fn main() -> Result<()> {
         terminal.clear()?;
         terminal.hide_cursor()?;
 
+        // Setup Ctrl+C handler
+        let rt = Runtime::new()?;
+        let ctrl_c_tx = tx.clone();
+        
+        rt.spawn(async move {
+            if let Ok(()) = signal::ctrl_c().await {
+                ctrl_c_tx.send(Event::Quit).unwrap_or_default();
+            }
+        });
+
         let clk_split = 0;
 
         debug!("Into loop");
@@ -166,12 +180,13 @@ async fn main() -> Result<()> {
             let evt = rx.recv().unwrap();
             {
                 match evt {
-                    Event::Input(input) => {
-                        if let Some(command) = app.input_handler(input) {
-                            match command {
-                                Cmd::Quit => {
-                                    break;
-                                } //_ => (),
+                    Event::Input(key) => {
+                        if key == event::Key::Char('q') {
+                            break;
+                        }
+                        if let Some(cmd) = app.input_handler(key) {
+                            match cmd {
+                                Cmd::Quit => break,
                             }
                         }
                     }
@@ -188,6 +203,9 @@ async fn main() -> Result<()> {
                             }
                         }
                     }
+                    Event::Quit => {
+                        break;
+                    }
                 }
             }
 
@@ -195,8 +213,13 @@ async fn main() -> Result<()> {
         }
 
         debug!("Back with cursor and original terminal");
-        terminal.show_cursor().unwrap();
-        terminal.clear().unwrap();
+        terminal.clear()?;
+        terminal.show_cursor()?;
+        
+        // // Kill the monitored process if it's still running
+        // if let Ok(mut process) = sysinfo::System::new_all().processes().get(&pid.as_u32()) {
+        //     process.kill();
+        // }
     }
     if let Some(wtr) = &mut writer {
         wtr.flush()?;

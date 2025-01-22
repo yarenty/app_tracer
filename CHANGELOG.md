@@ -1,5 +1,12 @@
 # Changelog
 
+
+## 0.7.5
+- update env_logger to 0.11:
+    - Better color support through the auto-color feature
+    - More consistent API for filter configuration
+    - Improved error handling internally
+
 ## 0.7.4
 - fix output out/err files creation
 Created two separate files for output:

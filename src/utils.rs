@@ -1,11 +1,13 @@
 use crate::error::{Result, TraceError};
 use chrono::prelude::*;
-use env_logger::fmt::{Color, Formatter};
+use env_logger::fmt::Formatter;
 use env_logger::{Builder, WriteStyle};
 use log::{Level, LevelFilter, Record};
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::{env, thread};
+use termion::color::{Fg, Reset, Rgb};
+use termion::style::{Bold, Reset as StyleReset};
 
 /// Current output directory
 pub fn get_current_working_dir() -> String {
@@ -86,38 +88,44 @@ pub fn setup_logger(log_thread: bool, rust_log: Option<&str>) {
             "".to_string()
         };
 
-        let mut thread_style = formatter.style();
-        let mut level_style = formatter.style();
-
-        match record.level() {
-            Level::Error => level_style.set_color(Color::Red).set_bold(true),
-            Level::Warn => level_style.set_color(Color::Red),
-            Level::Info => level_style.set_color(Color::Green).set_intense(true),
-            Level::Debug => level_style.set_color(Color::Blue),
-            Level::Trace => level_style.set_color(Color::Magenta),
+        let level_style = match record.level() {
+            Level::Error => format!("{}{}", Fg(Rgb(255,0,0)), Bold),
+            Level::Warn => format!("{}", Fg(Rgb(255,0,0))),
+            Level::Info => format!("{}", Fg(Rgb(0,255,0))),
+            Level::Debug => format!("{}", Fg(Rgb(0,0,255))),
+            Level::Trace => format!("{}", Fg(Rgb(255,0,255))),
         };
-        thread_style.set_color(Color::Magenta).set_intense(true);
+
+        let thread_style = format!("{}", Fg(Rgb(255,0,255)));
+        let reset = format!("{}{}", Fg(Reset), StyleReset);
 
         let local_time: DateTime<Local> = Local::now();
         let time_str = local_time.format("%H:%M:%S%.3f").to_string();
+        
         writeln!(
             formatter,
-            "{} {}{} - {} - {}",
+            "{} {}{}{} {}{}{} - {} - {}",
             time_str,
-            thread_style.value(thread_name),
-            level_style.value(record.level()),
+            thread_style, thread_name, reset,
+            level_style, record.level(), reset,
             record.target(),
             record.args()
         )
     };
 
     let mut builder = Builder::new();
-    builder
-        .format(output_format)
-        .filter(None, LevelFilter::Info);
-    builder.write_style(WriteStyle::Always);
+    
+    // Set default filter level
+    if let Some(conf) = rust_log {
+        builder.parse_filters(conf);
+    } else {
+        builder.filter_level(LevelFilter::Info);
+    }
 
-    rust_log.map(|conf| builder.parse_filters(conf));
+    // Configure formatting
+    builder.format(output_format)
+           .write_style(WriteStyle::Always);
 
+    // Initialize the logger
     builder.init();
 }
