@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.7
+- upgrade termion to 4.0.3
+- enhance terminal handling with latest termion features
+- fix terminal setup to use proper alternate screen creation
+- improve TUI responsiveness and color support
+- maintain compatibility with existing terminal features
+
 ## 0.7.6
 - upgrade thiserror to 2.0.11
 - improve error handling with latest thiserror features
