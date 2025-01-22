@@ -89,31 +89,16 @@ pub fn setup_logger(log_thread: bool, rust_log: Option<&str>) {
 
         // Define color styles using termion
         let (level_color, level_style) = match record.level() {
-            Level::Error => (
-                format!("{}", Fg(color::LightRed)),
-                "ERROR".to_string(),
-            ),
-            Level::Warn => (
-                format!("{}", Fg(color::Yellow)),
-                "WARN".to_string(),
-            ),
-            Level::Info => (
-                format!("{}", Fg(color::LightGreen)),
-                "INFO".to_string(),
-            ),
-            Level::Debug => (
-                format!("{}", Fg(color::LightBlue)),
-                "DEBUG".to_string(),
-            ),
-            Level::Trace => (
-                format!("{}", Fg(color::Magenta)),
-                "TRACE".to_string(),
-            ),
+            Level::Error => (format!("{}", Fg(color::LightRed)), "ERROR".to_string()),
+            Level::Warn => (format!("{}", Fg(color::Yellow)), "WARN".to_string()),
+            Level::Info => (format!("{}", Fg(color::LightGreen)), "INFO".to_string()),
+            Level::Debug => (format!("{}", Fg(color::LightBlue)), "DEBUG".to_string()),
+            Level::Trace => (format!("{}", Fg(color::Magenta)), "TRACE".to_string()),
         };
 
         let local_time: DateTime<Local> = Local::now();
         let time_str = local_time.format("%H:%M:%S%.3f").to_string();
-        
+
         writeln!(
             formatter,
             "{}{}{} {}{}{} {}{}{} [{}] - {}",

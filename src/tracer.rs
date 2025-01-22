@@ -1,44 +1,26 @@
 #[macro_use]
 extern crate log;
 
+use crate::args::Args;
+use crate::trace::{app::App, cmd::Cmd, event::Event, ui::renderer::render, Record};
+use crate::utils::create_file;
 use clap::Parser;
-use std::fs::File;
-use std::io;
-use std::process::{Command, Stdio};
-use std::sync::mpsc;
-use std::thread;
-use std::time;
-use std::time::Duration;
-use sysinfo::{Pid, ProcessExt, System, SystemExt};
-
-use termion::{
-    event,
-    input::{MouseTerminal, TermRead},
-    raw::IntoRawMode,
-    screen::AlternateScreen,
-};
-
-use tui::backend::CrosstermBackend;
-use tui::Terminal;
-
 use color_eyre::eyre::{eyre, Result};
 use csv::Writer;
 use itertools::Itertools;
+use std::{io, thread, time, time::Duration, sync::mpsc, fs::File, process::{Command, Stdio}};
+use sysinfo::{Pid, ProcessExt, System, SystemExt};
+use termion::{event, input::TermRead, raw::IntoRawMode, screen::IntoAlternateScreen};
+use tokio::runtime::Runtime;
+use tokio::signal;
+use tui::backend::CrosstermBackend;
+use tui::Terminal;
+use utils::{check_in_current_dir, get_current_working_dir, setup_logger};
 
 mod args;
 mod error;
 mod trace;
 mod utils;
-
-use crate::trace::{app::App, cmd::Cmd, event::Event, ui::renderer::render, Record};
-
-use utils::{check_in_current_dir, get_current_working_dir, setup_logger};
-
-use crate::args::Args;
-use crate::utils::create_file;
-
-use tokio::signal;
-use tokio::runtime::Runtime;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -64,11 +46,14 @@ async fn main() -> Result<()> {
         }
 
         let (path, app) = check_in_current_dir(app)?;
-        info!("Application to be monitored is: {}, in dir {} , with params: {:?}", app, path, p);
+        info!(
+            "Application to be monitored is: {}, in dir {} , with params: {:?}",
+            app, path, p
+        );
 
         let output_file = File::create(format!("{}.out", app))?;
         let error_file = File::create(format!("{}.err", app))?;
-        
+
         let cmd = Command::new(&path)
             .current_dir(get_current_working_dir())
             .args(p)
@@ -145,16 +130,13 @@ async fn main() -> Result<()> {
         });
 
         debug!("Ticker starting");
-        thread::spawn(move || {
-            loop {
-                ticker_tx.send(Event::Tick).unwrap();
-                thread::sleep(time::Duration::from_millis(refresh_millis));
-            }
+        thread::spawn(move || loop {
+            ticker_tx.send(Event::Tick).unwrap();
+            thread::sleep(time::Duration::from_millis(refresh_millis));
         });
 
         let stdout = io::stdout().into_raw_mode()?;
-        let stdout = MouseTerminal::from(stdout);
-        let stdout = AlternateScreen::from(stdout);
+        let stdout = stdout.into_alternate_screen()?;
         let backend = CrosstermBackend::new(stdout);
         let mut terminal = Terminal::new(backend)?;
 
@@ -165,7 +147,7 @@ async fn main() -> Result<()> {
         // Setup Ctrl+C handler
         let rt = Runtime::new()?;
         let ctrl_c_tx = tx.clone();
-        
+
         rt.spawn(async move {
             if let Ok(()) = signal::ctrl_c().await {
                 ctrl_c_tx.send(Event::Quit).unwrap_or_default();
@@ -214,7 +196,7 @@ async fn main() -> Result<()> {
         debug!("Back with cursor and original terminal");
         terminal.clear()?;
         terminal.show_cursor()?;
-        
+
         // // Kill the monitored process if it's still running
         // if let Ok(mut process) = sysinfo::System::new_all().processes().get(&pid.as_u32()) {
         //     process.kill();
@@ -225,7 +207,6 @@ async fn main() -> Result<()> {
     }
     // in case of exit from application that was not terminated by user
     if kill {
-
         let _ = Command::new("kill")
             .arg("-9")
             .arg(format!("{}", id))
