@@ -2,12 +2,12 @@ use crate::error::{Result, TraceError};
 use crate::trace::app::App;
 
 use crate::trace::ui::panels::*;
-use tui::backend::Backend;
-use tui::layout::{Constraint, Direction, Layout, Rect};
-use tui::style::{Color, Modifier, Style};
-use tui::text::Span;
-use tui::widgets::{Block, Borders, Tabs};
-use tui::{Frame, Terminal};
+use ratatui::backend::Backend;
+use ratatui::layout::{Constraint, Direction, Layout, Rect};
+use ratatui::style::{Color, Modifier, Style};
+use ratatui::text::Span;
+use ratatui::widgets::{Block, Borders, Tabs};
+use ratatui::{Frame, Terminal};
 
 pub fn render<B: Backend>(t: &mut Terminal<B>, app: &App) -> Result<()> {
     match t.draw(|f| {

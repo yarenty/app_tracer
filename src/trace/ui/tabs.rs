@@ -1,4 +1,4 @@
-use tui::text::Spans;
+use ratatui::text::Spans;
 
 pub struct Tabs<'a> {
     pub titles: Vec<Spans<'a>>,

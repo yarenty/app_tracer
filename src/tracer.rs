@@ -8,13 +8,20 @@ use clap::Parser;
 use color_eyre::eyre::{eyre, Result};
 use csv::Writer;
 use itertools::Itertools;
-use std::{io, thread, time, time::Duration, sync::mpsc, fs::File, process::{Command, Stdio}};
+use ratatui::backend::CrosstermBackend;
+use ratatui::Terminal;
+use std::{
+    fs::File,
+    io,
+    process::{Command, Stdio},
+    sync::mpsc,
+    thread, time,
+    time::Duration,
+};
 use sysinfo::{Pid, ProcessExt, System, SystemExt};
 use termion::{event, input::TermRead, raw::IntoRawMode, screen::IntoAlternateScreen};
 use tokio::runtime::Runtime;
 use tokio::signal;
-use tui::backend::CrosstermBackend;
-use tui::Terminal;
 use utils::{check_in_current_dir, get_current_working_dir, setup_logger};
 
 mod args;

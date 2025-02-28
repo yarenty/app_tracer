@@ -1,7 +1,7 @@
 [package]
 name = "app-tracer"
 authors = ["yarenty <yarenty@gmail.com>"]
-version = "0.7.7"
+version = "0.8.0"
 edition = "2021"
 repository = "https://github.com/yarenty/app_tracer"
 homepage = "https://github.com/yarenty/app_tracer"
@@ -35,16 +35,9 @@ serde_derive = "1"
 itertools = "0.10"
 sysinfo = "0.26"
 const_format = "0.2"
-#nix = { version =  "0.25", features = ["process", "pthread", "ptrace"] }
 
 termion = "4.0.3"
-#stderrlog = "0.4.3"
-tui = "0.19.0"
-#num-traits = "0.2"
-
-
-#[build-dependencies]
-#dirs = "1.0.5"
+ratatui = "0.20"
 
 
 [dev-dependencies]

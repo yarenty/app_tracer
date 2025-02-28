@@ -6,8 +6,8 @@ use crate::error::Result;
 use crate::trace::app_data_streams::AppDataStreams;
 use crate::trace::cmd::Cmd;
 use crate::trace::ui::tabs::Tabs;
-use tui::style::{Color, Style};
-use tui::text::{Span, Spans};
+use ratatui::style::{Color, Style};
+use ratatui::text::{Span, Spans};
 
 static INFO: LazyLock<String> = LazyLock::new(|| {
     format!(

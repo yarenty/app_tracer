@@ -1,4 +1,4 @@
-use tui::layout::Rect;
+use ratatui::layout::Rect;
 
 pub fn scrolling<T: Clone>(area: Rect, absolute_postion: usize, data: &[T]) -> (usize, Vec<T>) {
     let capacity: usize = area.height as usize - 4; //For the header

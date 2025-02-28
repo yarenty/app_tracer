@@ -1,13 +1,13 @@
 use crate::trace::app::App;
 
 use itertools::Itertools;
-use tui::backend::Backend;
-use tui::layout::Rect;
-use tui::style::{Color, Modifier, Style};
-use tui::symbols::Marker;
-use tui::text::Span;
-use tui::widgets::{Axis, Block, Borders, Chart, Dataset};
-use tui::Frame;
+use ratatui::backend::Backend;
+use ratatui::layout::Rect;
+use ratatui::style::{Color, Modifier, Style};
+use ratatui::symbols::Marker;
+use ratatui::text::Span;
+use ratatui::widgets::{Axis, Block, Borders, Chart, Dataset};
+use ratatui::Frame;
 
 pub fn mem_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
     let total = (app.datastreams.readings.get_total_memory() / 1024 / 1024) as f64;

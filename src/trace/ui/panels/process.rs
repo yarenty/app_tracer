@@ -1,12 +1,12 @@
 use crate::trace::app::App;
 use crate::trace::ui::panels::utils;
 
-use tui::backend::Backend;
-use tui::layout::{Constraint, Rect};
-use tui::style::{Color, Modifier, Style};
-use tui::text::Span;
-use tui::widgets::{Block, Borders, Row, Table};
-use tui::Frame;
+use ratatui::backend::Backend;
+use ratatui::layout::{Constraint, Rect};
+use ratatui::style::{Color, Modifier, Style};
+use ratatui::text::Span;
+use ratatui::widgets::{Block, Borders, Row, Table};
+use ratatui::Frame;
 
 pub fn process_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
     let mut process_by_cpu = app.datastreams.process_info.processes.clone();
