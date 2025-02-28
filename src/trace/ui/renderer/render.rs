@@ -14,7 +14,7 @@ pub fn render<B: Backend>(t: &mut Terminal<B>, app: &App) -> Result<()> {
         let sub_areas = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Length(4), Constraint::Min(5)].as_ref())
-            .split(f.size());
+            .split(f.area());
 
         render_top(f, app, sub_areas[0]);
         #[allow(clippy::single_match)]
@@ -30,7 +30,7 @@ pub fn render<B: Backend>(t: &mut Terminal<B>, app: &App) -> Result<()> {
     }
 }
 
-fn render_top<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
+fn render_top(f: &mut Frame, app: &App, area: Rect) {
     let sub_areas = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
@@ -40,7 +40,7 @@ fn render_top<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
     process_panel(f, app, sub_areas[1]);
 }
 
-fn render_intro<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
+fn render_intro(f: &mut Frame, app: &App, area: Rect) {
     let tabs = Tabs::new(app.tabs.titles.clone())
         .block(
             Block::default().borders(Borders::ALL).title(Span::styled(
@@ -57,7 +57,7 @@ fn render_intro<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
     f.render_widget(tabs, area);
 }
 
-pub fn render_charts<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
+pub fn render_charts(f: &mut Frame, app: &App, area: Rect) {
     let sub_areas = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())

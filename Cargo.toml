@@ -37,7 +37,7 @@ sysinfo = "0.26"
 const_format = "0.2"
 
 termion = "4.0.3"
-ratatui = "0.20"
+ratatui = "0.29"
 
 
 [dev-dependencies]

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.8.0 (The Great Ratening)
+
+*   **Major "Improvement":** We've swapped out `tui` for `ratatui`. Yes, you heard that right. We've traded one library for another, because why not? Who needs stability when you can have... *change*?  It's like switching from a slightly leaky bucket to a bucket made of *slightly* different materials. This is progress, people! Pure, unadulterated progress! The world will never be the same. (Probably.)
+*   **UI Overhaul (of Sorts):** The UI, in its infinite wisdom, has been "modernized". What does this mean? Nobody knows. Prepare for the layout to be roughly the same, but slightly different, as if it had been subtly rearranged while you weren't looking. Embrace the chaos, or just pretend nothing has changed. Your call.
+*   **Performance Boost (Debatable):** We've heard rumors that `ratatui` might be faster than `tui`. Or maybe it's slower.  Frankly, we're not sure, and neither should you be. Benchmarks? Who needs benchmarks when you have *feelings*? We're running on vibes here. If it feels faster to you, then it's faster.
+*   **Crossterm Embrace:** Now, we have full `crossterm` support. So we got a new dependency. It will be better. We hope so. If not, you should be aware of it.
+* **Termion RIP**: Good bye termion, we will not miss you.
+*   **Bug Fixes (Possibly):**  Since we changed a fundamental UI library, we've undoubtedly fixed some bugs. We've also probably introduced some new, exciting ones.  It's a bug lottery! Will your favorite feature work? Or will it now cause the terminal to spontaneously combust?  Only one way to find out!  Please test generously and let us know. Or don't. We're not your boss.
+* **Log Enhancements** Now we are logging in way that it is visible in TUI mode.
+* **Panic Handling** App will not exit from panic, it will log it in log view.
+* **General Refactoring** Code was cleaned up after replacing tui with ratatui.
+* **No More Black Boxes:** The old `tui` was too mystical. Too magical. With `ratatui`, we've removed some of that unexplainable stuff. Now, your terminal app is powered by slightly-less-unexplainable things.
+* **New dependecy**: one of old dependecy was replaced with new one.
+
+
+
 ## 0.7.7
 - upgrade termion to 4.0.3
 - enhance terminal handling with latest termion features

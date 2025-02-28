@@ -1,20 +1,23 @@
 use crate::trace::app::App;
 use crate::trace::ui::panels::utils;
 
-use ratatui::backend::Backend;
 use ratatui::layout::{Constraint, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::Span;
 use ratatui::widgets::{Block, Borders, Row, Table};
 use ratatui::Frame;
 
-pub fn process_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
+pub fn process_panel(f: &mut Frame, app: &App, area: Rect) {
     let mut process_by_cpu = app.datastreams.process_info.processes.clone();
     process_by_cpu.sort_by(|a, b| b.2.partial_cmp(&a.2).unwrap());
 
     let (_, process_to_display) = utils::scrolling(area, app.selected_proc, &process_by_cpu[..]);
 
     let s = process_to_display.first().unwrap();
+    let widths = [ Constraint::Length(10),
+        Constraint::Length(25),
+        Constraint::Length(10),
+        Constraint::Length(10),];
     let proc_table = Table::new(vec![
         // Row can be created from simple strings.
         Row::new(vec![
@@ -29,7 +32,9 @@ pub fn process_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
                 .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
         ),
-    ])
+    ],
+    widths
+    )
     // You can set the style of the entire Table.
     .style(Style::default().fg(Color::Gray))
     // It has an optional header, which is simply a Row always visible at the top.
@@ -52,7 +57,7 @@ pub fn process_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
     // ...and they can be separated by a fixed spacing.
     .column_spacing(1)
     // If you wish to highlight a row in any specific way when it is selected...
-    .highlight_style(Style::default().add_modifier(Modifier::BOLD))
+    .row_highlight_style(Style::default().add_modifier(Modifier::BOLD))
     // ...and potentially show a symbol in front of the selection.
     .highlight_symbol(">>")
     .block(
