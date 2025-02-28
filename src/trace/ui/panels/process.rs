@@ -14,26 +14,29 @@ pub fn process_panel(f: &mut Frame, app: &App, area: Rect) {
     let (_, process_to_display) = utils::scrolling(area, app.selected_proc, &process_by_cpu[..]);
 
     let s = process_to_display.first().unwrap();
-    let widths = [ Constraint::Length(10),
+    let widths = [
+        Constraint::Length(10),
         Constraint::Length(25),
         Constraint::Length(10),
-        Constraint::Length(10),];
-    let proc_table = Table::new(vec![
-        // Row can be created from simple strings.
-        Row::new(vec![
-            s.0.to_string(),
-            s.1.to_string(),
-            format!("{:.2}", s.2),
-            s.3.to_string(),
-        ])
-        .style(
-            Style::default()
-                .bg(Color::Blue)
-                .fg(Color::White)
-                .add_modifier(Modifier::BOLD),
-        ),
-    ],
-    widths
+        Constraint::Length(10),
+    ];
+    let proc_table = Table::new(
+        vec![
+            // Row can be created from simple strings.
+            Row::new(vec![
+                s.0.to_string(),
+                s.1.to_string(),
+                format!("{:.2}", s.2),
+                s.3.to_string(),
+            ])
+            .style(
+                Style::default()
+                    .bg(Color::Blue)
+                    .fg(Color::White)
+                    .add_modifier(Modifier::BOLD),
+            ),
+        ],
+        widths,
     )
     // You can set the style of the entire Table.
     .style(Style::default().fg(Color::Gray))
@@ -48,7 +51,7 @@ pub fn process_panel(f: &mut Frame, app: &App, area: Rect) {
     // As any other widget, a Table can be wrapped in a Block.
     .block(Block::default().title("Table"))
     // Columns widths are constrained in the same way as Layout...
-    .widths(&[
+    .widths([
         Constraint::Length(10),
         Constraint::Length(25),
         Constraint::Length(10),

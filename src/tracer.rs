@@ -37,6 +37,7 @@ async fn main() -> Result<()> {
 
     let mut kill = false;
     let id: i32;
+
     if let Some(app) = args.application {
         let with_params = app.split(' ').collect_vec();
         let apt = app.as_str();
@@ -48,7 +49,7 @@ async fn main() -> Result<()> {
 
         let mut p = args.args.to_vec();
         for d in params {
-            p.push(String::from(d.to_string()));
+            p.push(String::from(*d));
         }
 
         let (path, app) = check_in_current_dir(app)?;
@@ -100,6 +101,7 @@ async fn main() -> Result<()> {
         let mut system = System::new_all();
 
         info!("Running in TXT mode.");
+        // TODO add Ctrl+C - kill child process !!
         loop {
             thread::sleep(Duration::from_millis(refresh_millis));
             system.refresh_process(pid);
@@ -159,7 +161,6 @@ async fn main() -> Result<()> {
             }
         });
 
-      
         debug!("Into loop");
         loop {
             let evt = rx.recv().unwrap();
