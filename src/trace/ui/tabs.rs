@@ -1,7 +1,7 @@
-use tui::text::Spans;
+use ratatui::text::Line;
 
 pub struct Tabs<'a> {
-    pub titles: Vec<Spans<'a>>,
+    pub titles: Vec<Line<'a>>,
     pub selection: usize,
 }
 

@@ -8,13 +8,19 @@ use clap::Parser;
 use color_eyre::eyre::{eyre, Result};
 use csv::Writer;
 use itertools::Itertools;
-use std::{io, thread, time, time::Duration, sync::mpsc, fs::File, process::{Command, Stdio}};
+use ratatui::backend::CrosstermBackend;
+use ratatui::Terminal;
+use std::{
+    fs::File,
+    io,
+    process::{Command, Stdio},
+    sync::mpsc,
+    thread, time,
+    time::Duration,
+};
 use sysinfo::{Pid, ProcessExt, System, SystemExt};
 use termion::{event, input::TermRead, raw::IntoRawMode, screen::IntoAlternateScreen};
-use tokio::runtime::Runtime;
-use tokio::signal;
-use tui::backend::CrosstermBackend;
-use tui::Terminal;
+use tokio::{signal, spawn};
 use utils::{check_in_current_dir, get_current_working_dir, setup_logger};
 
 mod args;
@@ -145,17 +151,15 @@ async fn main() -> Result<()> {
         terminal.hide_cursor()?;
 
         // Setup Ctrl+C handler
-        let rt = Runtime::new()?;
         let ctrl_c_tx = tx.clone();
 
-        rt.spawn(async move {
+        spawn(async move {
             if let Ok(()) = signal::ctrl_c().await {
                 ctrl_c_tx.send(Event::Quit).unwrap_or_default();
             }
         });
 
-        let clk_split = 0;
-
+      
         debug!("Into loop");
         loop {
             let evt = rx.recv().unwrap();
@@ -172,16 +176,14 @@ async fn main() -> Result<()> {
                         }
                     }
                     Event::Tick => {
-                        if clk_split % 2 == 0 {
-                            app.update()?;
-                            if let Some(wtr) = &mut writer {
-                                let t = format!("{}", chrono::Utc::now().time());
-                                let c = format!("{}", app.datastreams.readings.get_cpu());
-                                let m = format!("{}", app.datastreams.readings.get_mem());
-                                let r = Record::new(&t, &c, &m);
-                                wtr.serialize(r).expect("Error serializing outputs to csv");
-                                wtr.flush()?;
-                            }
+                        app.update()?;
+                        if let Some(wtr) = &mut writer {
+                            let t = format!("{}", chrono::Utc::now().time());
+                            let c = format!("{}", app.datastreams.readings.get_cpu());
+                            let m = format!("{}", app.datastreams.readings.get_mem());
+                            let r = Record::new(&t, &c, &m);
+                            wtr.serialize(r).expect("Error serializing outputs to csv");
+                            wtr.flush()?;
                         }
                     }
                     Event::Quit => {
@@ -197,7 +199,7 @@ async fn main() -> Result<()> {
         terminal.clear()?;
         terminal.show_cursor()?;
 
-        // // Kill the monitored process if it's still running
+        // TODO: Kill the monitored process if it's still running, need to rethink whole no UI stuff as well
         // if let Ok(mut process) = sysinfo::System::new_all().processes().get(&pid.as_u32()) {
         //     process.kill();
         // }

@@ -6,8 +6,8 @@ use crate::error::Result;
 use crate::trace::app_data_streams::AppDataStreams;
 use crate::trace::cmd::Cmd;
 use crate::trace::ui::tabs::Tabs;
-use tui::style::{Color, Style};
-use tui::text::{Span, Spans};
+use ratatui::style::{Color, Style};
+use ratatui::text::{Span, Line}; // Changed Spans to Line
 
 static INFO: LazyLock<String> = LazyLock::new(|| {
     format!(
@@ -44,7 +44,7 @@ impl<'a> App<'a> {
             selected_proc: 0,
             tabs: Tabs {
                 titles: {
-                    vec![Spans::from(vec![
+                    vec![Line::from(vec![ // Changed Spans::from to Line::from
                         Span::styled(&*INFO, Style::default().fg(Color::LightYellow)),
                         Span::styled("   q-Quit", Style::default().fg(Color::Yellow)),
                     ])]

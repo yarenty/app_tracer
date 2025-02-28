@@ -22,7 +22,7 @@ cargo build -r
 
 Create example app:
 ```shell
-cargo build --examples test_app
+cargo build --example test_app
 ```
 
 Run in txt mode and output persisted to out.csv file:

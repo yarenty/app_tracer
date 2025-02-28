@@ -1,22 +1,21 @@
 use crate::trace::app::App;
 
 use itertools::Itertools;
-use tui::backend::Backend;
-use tui::layout::Rect;
-use tui::style::{Color, Modifier, Style};
-use tui::symbols::Marker;
-use tui::text::Span;
-use tui::widgets::{Axis, Block, Borders, Chart, Dataset};
-use tui::Frame;
+use ratatui::layout::Rect;
+use ratatui::style::{Color, Modifier, Style};
+use ratatui::symbols::Marker;
+use ratatui::text::Span;
+use ratatui::widgets::{Axis, Block, Borders, Chart, Dataset};
+use ratatui::Frame;
 
-pub fn cpu_usage_history_panel<B: Backend>(f: &mut Frame<B>, app: &App, area: Rect) {
+pub fn cpu_usage_history_panel(f: &mut Frame, app: &App, area: Rect) {
     let ds: Vec<(f64, f64)> = app
         .cpu_panel_memory
         .iter()
         .map(|(x, y)| (*x, *y))
         .collect_vec();
     let datasets = vec![Dataset::default()
-        .name(&app.cpu_usage_str)
+        .name(String::from(&app.cpu_usage_str))
         .marker(Marker::Braille)
         .style(Style::default().fg(Color::LightRed))
         .data(&ds)];
