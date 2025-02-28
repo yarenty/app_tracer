@@ -28,74 +28,82 @@ mod error;
 mod trace;
 mod utils;
 
+/// Main function. Because every program needs one.
+/// "The journey of a thousand miles begins with a single step." - Lao Tzu, who probably never wrote multithreaded applications.
 #[tokio::main]
 async fn main() -> Result<()> {
-    let args = Args::parse();
-    setup_logger(true, Some(&args.log));
+    let args = Args::parse(); // Oh, we have arguments? How fancy!
+    setup_logger(true, Some(&args.log)); // because logging is essential.
 
-    debug!("Start");
+    debug!("Start"); // Of course, we're starting.
 
-    let mut kill = false;
-    let id: i32;
+    let mut kill = false; // Kill it with fire! Or, you know, a boolean.
+    let id: i32; // Because every process needs an ID. Or an identity crisis.
 
     if let Some(app) = args.application {
-        let with_params = app.split(' ').collect_vec();
-        let apt = app.as_str();
+        // What application?
+        let with_params = app.split(' ').collect_vec(); // Let's split the app name from params
+        let apt = app.as_str(); // And we need it as str? why?
         let (app, params) = if let Some((a, p)) = with_params.split_first() {
+            // Split first
             (a, p)
         } else {
-            (&apt, [""].as_slice())
+            (&apt, [""].as_slice()) // nothing to split
         };
 
-        let mut p = args.args.to_vec();
+        let mut p = args.args.to_vec(); // get arguments
         for d in params {
-            p.push(String::from(*d));
+            p.push(String::from(*d)); // add additional arguments if needed.
         }
 
-        let (path, app) = check_in_current_dir(app)?;
+        let (path, app) = check_in_current_dir(app)?; // Let's check app again
         info!(
             "Application to be monitored is: {}, in dir {} , with params: {:?}",
-            app, path, p
+            app,
+            path,
+            p // Yeah, we have it all!
         );
 
-        let output_file = File::create(format!("{}.out", app))?;
-        let error_file = File::create(format!("{}.err", app))?;
+        let output_file = File::create(format!("{}.out", app))?; // Create output file
+        let error_file = File::create(format!("{}.err", app))?; // and error file
 
-        let cmd = Command::new(&path)
-            .current_dir(get_current_working_dir())
-            .args(p)
-            .stdin(Stdio::null())
-            .stdout(Stdio::from(output_file))
-            .stderr(Stdio::from(error_file))
-            .spawn()
-            .expect("Failed to run ");
+        let cmd = Command::new(&path) // create command
+            .current_dir(get_current_working_dir()) // set current dir
+            .args(p) // and params
+            .stdin(Stdio::null()) // no input
+            .stdout(Stdio::from(output_file)) // save output to file
+            .stderr(Stdio::from(error_file)) // save error to file
+            .spawn() // spawn it !
+            .expect("Failed to run "); // if it is failed
 
-        kill = true;
-        id = cmd.id() as i32;
+        kill = true; // we will kill it later
+        id = cmd.id() as i32; // get the id
     } else if let Some(pid) = &args.pid {
-        info!("Application to be monitored is: [PID] {:?}", pid);
-        id = *pid;
+        // What about PID ?
+        info!("Application to be monitored is: [PID] {:?}", pid); // just log
+        id = *pid; // save pid
     } else {
         return Err(eyre!("Not sure what supposed to trace. Please provide application path or PID. [Use -h for help]".to_string()));
+        // well...
     }
 
     let refresh_millis = args.refresh;
-    info!("Refresh rate: {} ms.", refresh_millis);
+    info!("Refresh rate: {} ms.", refresh_millis); // How fast do you want it to be?
 
     let mut writer: Option<Writer<File>> = args
         .output
         .as_ref()
-        .map(|path| csv::Writer::from_writer(create_file(path).inner));
+        .map(|path| csv::Writer::from_writer(create_file(path).inner)); // CSV time
     match writer {
         Some(_) => info!(
             "Output readings persisted into \"{}\".",
             args.output.unwrap()
-        ),
-        None => info!("No output persistence."),
+        ), // it will be saved
+        None => info!("No output persistence."), // it will be lost
     }
 
     let pid: Pid = Pid::from(id);
-    info!("Starting with PID::{}", pid);
+    info!("Starting with PID::{}", pid); // start with pid
 
     if args.noui {
         let mut system = System::new_all();
