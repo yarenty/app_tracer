@@ -13,6 +13,11 @@ _Note: For monitoring one-shot applications - see [https://github.com/yarenty/ap
 
 ## Build
 
+Build it. Or don't. It's not like we're going to force you. 
+
+"The journey of a thousand miles begins with a single step." - Lao Tzu, probably while waiting for a Rust compilation.
+
+
 ```shell
 cargo build -r
 ```
@@ -29,6 +34,10 @@ Run in txt mode and output persisted to out.csv file:
 ```shell
 cargo run  -r -- -n -o out.csv /opt/workspace/app_tracer/target/debug/examples/test_app
 ```
+
+This is how you run it. If you can follow these instructions, you're overqualified. 
+
+"The only thing we have to fear is fear itself." - Franklin D. Roosevelt, definitely not talking about command-line arguments.
 
 
 ## Usage
@@ -54,6 +63,9 @@ OPTIONS:
     -V, --version              Print version information
 
 ```
+
+The command-line options. We have them. Use them, or don't. It's all the same to us.
+
 
 ## Example output
 
@@ -83,6 +95,10 @@ cargo run -r -- -n -o out.csv /opt/workspace/app_tracer/target/debug/examples/te
 
 ```
 
+Look at those logs. Aren't you impressed?
+
+
+
 
 
 ## CSV persistence
@@ -97,7 +113,15 @@ Time,Cpu,Mem
 ```
 
 
+CSV. Because tables are essential to human progress. Or something like that. 
+
+"The only true wisdom is in knowing you know nothing." - Socrates, who definitely knew nothing about CSV.
+
+
 ## [CHANGELOG](CHANGELOG.md)
+
+If you're still here, you must really enjoy pain. Or you are really interested in history. Or both.
+
 
 
 
@@ -106,3 +130,4 @@ Time,Cpu,Mem
 
 ![Alt](https://repobeats.axiom.co/api/embed/c6bc985250b9c8e4f24600cf492f3806bec79346.svg "Repobeats analytics image")
 
+We're still alive! Barely.
