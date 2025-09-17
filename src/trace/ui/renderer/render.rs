@@ -6,7 +6,7 @@ use ratatui::backend::Backend;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::Span;
-use ratatui::widgets::{Block, Borders, Tabs};
+use ratatui::widgets::{Block, Borders, Tabs, Paragraph};
 use ratatui::{Frame, Terminal};
 
 /// The main rendering function. Because apparently, we have to draw things on the screen.
@@ -25,6 +25,9 @@ pub fn render<B: Backend>(t: &mut Terminal<B>, app: &App) -> Result<()> {
         match app.tabs.selection { // We are selecting tab, we need to know what tab!
             0 => { // 0? What does it mean?
                 render_charts(f, app, sub_areas[1]); // Rendering chart, because charts are important!
+            }
+            1 => { // GPU monitoring tab
+                render_gpu_panels(f, app, sub_areas[1]);
             }
             _ => {} // Anything else is just not worth our time.
         };
@@ -78,4 +81,68 @@ pub fn render_charts(f: &mut Frame, app: &App, area: Rect) {
 
     mem_history_panel(f, app, sub_areas[0]); // Memory panel! Let's remember it.
     cpu_usage_history_panel(f, app, sub_areas[1]); // CPU panel! Let's use it.
+}
+
+/// Renders GPU panels. Because GPUs are the future. Or present. Or something.
+/// "The future is already here – it's just not evenly distributed." - William Gibson, probably about GPU distribution.
+pub fn render_gpu_panels(f: &mut Frame, app: &App, area: Rect) {
+    if !app.gpu_available {
+        let no_gpu_text = Paragraph::new("GPU monitoring not available\nnvidia-smi not found or no GPUs detected")
+            .block(
+                Block::default()
+                    .title("GPU Monitoring")
+                    .borders(Borders::ALL)
+                    .style(Style::default().fg(Color::Gray)),
+            )
+            .style(Style::default().fg(Color::Red));
+        f.render_widget(no_gpu_text, area);
+        return;
+    }
+
+    // Split the area into multiple sections for different GPU metrics
+    let main_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(8),  // GPU summary
+            Constraint::Min(0),     // Main metrics area
+        ])
+        .split(area);
+
+    // GPU Summary at the top
+    gpu_summary_panel(f, app, &app.gpu_readings, main_chunks[0]);
+
+    // Split the main area into GPU metrics
+    let metrics_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(50), // Left side
+            Constraint::Percentage(50), // Right side
+        ])
+        .split(main_chunks[1]);
+
+    // Left side: Memory and Utilization
+    let left_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Percentage(50), // Memory
+            Constraint::Percentage(50), // Utilization
+        ])
+        .split(metrics_chunks[0]);
+
+    gpu_memory_panel(f, app, &app.gpu_readings, left_chunks[0]);
+    gpu_utilization_panel(f, app, &app.gpu_readings, left_chunks[1]);
+
+    // Right side: Temperature, Power, and Processes
+    let right_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(6),  // Temperature
+            Constraint::Length(6),  // Power
+            Constraint::Min(0),     // Processes
+        ])
+        .split(metrics_chunks[1]);
+
+    gpu_temperature_panel(f, app, &app.gpu_readings, right_chunks[0]);
+    gpu_power_panel(f, app, &app.gpu_readings, right_chunks[1]);
+    gpu_processes_panel(f, app, &app.gpu_readings, right_chunks[2]);
 }

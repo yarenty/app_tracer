@@ -1,7 +1,7 @@
 [package]
 name = "app-tracer"
 authors = ["yarenty <yarenty@gmail.com>"]
-version = "0.8.0"
+version = "0.9.0"
 edition = "2021"
 repository = "https://github.com/yarenty/app_tracer"
 homepage = "https://github.com/yarenty/app_tracer"
@@ -16,6 +16,10 @@ keywords = [
     "monitoring",
     "observability"
 ]
+
+[lib]
+name = "app_tracer"
+path = "src/lib.rs"
 
 
 [dependencies]
@@ -32,6 +36,7 @@ thiserror = "2"
 csv = "1"
 serde = "1"
 serde_derive = "1"
+serde_json = "1"
 itertools = "0.10"
 sysinfo = "0.26"
 const_format = "0.2"
@@ -47,6 +52,10 @@ ctrlc = "3"
 [[bin]]
 name = "tracer"
 path = "src/tracer.rs"
+
+[[example]]
+name = "gpu_demo"
+path = "examples/gpu_demo.rs"
 
 
 # by default it gets 16M - debug, 3.3M - release, with this: 1.3M

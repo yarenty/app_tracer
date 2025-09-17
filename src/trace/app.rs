@@ -6,6 +6,7 @@ use crate::error::Result;
 use crate::trace::app_data_streams::AppDataStreams;
 use crate::trace::cmd::Cmd;
 use crate::trace::ui::tabs::Tabs;
+use crate::trace::datastreams::{NvidiaSmiMonitor, GpuReadings};
 use ratatui::style::{Color, Style};
 use ratatui::text::{Line, Span}; // Changed Spans to Line
 
@@ -33,6 +34,11 @@ pub struct App<'a> {
     pub datastreams: AppDataStreams, // Because no one understands `Streams`
     pub autoscale: bool,      // Automatic scaling, because manual labor is so last century.
     pub refresh: u64,         // refresh rate
+    
+    // GPU monitoring
+    pub gpu_monitor: NvidiaSmiMonitor, // nvidia-smi monitor
+    pub gpu_readings: GpuReadings,     // Current GPU readings
+    pub gpu_available: bool,           // Whether GPU monitoring is available
 }
 
 impl App<'_> {
@@ -45,15 +51,35 @@ impl App<'_> {
         autoscale: bool,        // Autoscale because why not?
         refresh: u64,           // how often we should refresh?
     ) -> Result<Self> {
+        // Initialize GPU monitoring
+        let gpu_monitor = NvidiaSmiMonitor::new();
+        let gpu_available = gpu_monitor.is_available();
+        let gpu_readings = if gpu_available {
+            gpu_monitor.get_gpu_info().unwrap_or_default()
+        } else {
+            GpuReadings::new()
+        };
+
         Ok(Self {
             pid,
             selected_proc: 0,
             tabs: Tabs {
                 titles: {
-                    vec![Line::from(vec![
-                        Span::styled(&*INFO, Style::default().fg(Color::LightYellow)),
-                        Span::styled("   q-Quit", Style::default().fg(Color::Yellow)),
-                    ])]
+                    let mut titles = vec![
+                        Line::from(vec![
+                            Span::styled("CPU/Memory", Style::default().fg(Color::LightYellow)),
+                            Span::styled("   q-Quit", Style::default().fg(Color::Yellow)),
+                        ]),
+                    ];
+                    
+                    if gpu_available {
+                        titles.push(Line::from(vec![
+                            Span::styled("GPU Monitoring", Style::default().fg(Color::LightCyan)),
+                            Span::styled("   q-Quit", Style::default().fg(Color::Yellow)),
+                        ]));
+                    }
+                    
+                    titles
                 },
                 selection: 0,
             },
@@ -65,6 +91,9 @@ impl App<'_> {
             datastreams: AppDataStreams::new(history_len, interpolation_len, pid)?,
             autoscale,
             refresh,
+            gpu_monitor,
+            gpu_readings,
+            gpu_available,
         })
     }
 
@@ -107,6 +136,14 @@ impl App<'_> {
     /// "Progress is impossible without change, and those who cannot change their minds cannot change anything." - George Bernard Shaw, also not about updates.
     pub fn update(&mut self) -> Result<()> {
         self.datastreams.update()?;
+        
+        // Update GPU data if available
+        if self.gpu_available {
+            if let Ok(new_readings) = self.gpu_monitor.get_gpu_info() {
+                self.gpu_readings = new_readings;
+            }
+        }
+        
         //CPU History Parsing
         {
             self.cpu_panel_memory = self
